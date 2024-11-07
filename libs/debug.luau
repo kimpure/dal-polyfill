@@ -1,7 +1,8 @@
 return ({
 	getinfo = function(thred, level, options) 
 		local result = {}
-		for _, v in options:split'' do
+		for i=1, #options do
+			local v: string = options:sub(i, i)
 			if v == 'n'  then
 				result.name = debug.info(thred, level, 'n')
 			elseif v == 'S' then
