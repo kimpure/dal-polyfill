@@ -17,4 +17,7 @@ return ({
 		end
 	end,
 	traceback = debug.traceback, 
-} :: any) :: typeof(debug.info)
+} :: any) :: { 
+	getinfo: typeof(debug.info), 
+	traceback: typeof(debug.traceback),
+}
