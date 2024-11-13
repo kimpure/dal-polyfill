@@ -1,6 +1,13 @@
 {
   "luau-lsp.require.mode": "relativeToFile",
   "luau-lsp.require.directoryAliases": {
+<<<<<<< HEAD
     "@lune/": "~/.lune/.typedefs/0.8.9/"
   },
 }
+=======
+    "@lune/": "~/.lune/.typedefs/0.8.8/"
+  },
+  "luau-lsp.types.definitionFiles": [".d.luau"]
+}
+>>>>>>> d044ffc3966df21a5ac0de8a43c85d7a853d46bd

@@ -1,1 +1,8 @@
+<<<<<<< HEAD
 std = "luau+lua53"
+=======
+std = "luau+lua53"
+
+[lints]
+global_usage = "allow"
+>>>>>>> d044ffc3966df21a5ac0de8a43c85d7a853d46bd
