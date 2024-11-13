@@ -1,4 +1,4 @@
-local function getinfo(thred: thread, level: number, options: string)
+local function info(thred: thread, level: number, options: string)
 	local result = {}
 	for i=1, #options do
 		local v: string = options:sub(i, i)
@@ -14,10 +14,10 @@ local function getinfo(thred: thread, level: number, options: string)
 			result.func = debug.getinfo(thred, level, 'f')
 		end
 	end
-	return result
+	return table.unpack(result)
 end
 
 return {
-	getinfo = getinfo :: typeof(debug.info),
+	info = info :: typeof(debug.info),
 	traceback = debug.traceback
 }
