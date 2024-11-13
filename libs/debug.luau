@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 local function getinfo(thred: thread, level: number, options: string)
 	local result = {}
 	for i=1, #options do
