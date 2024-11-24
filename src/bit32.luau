@@ -25,7 +25,7 @@ local function arshift(x: number, disp: number): number
 	return z
 end
 
--- local function btest(x: number, y: number): boolean -- can be converted directly?
+-- local function btest(x: number, y: number): boolean -- can be converted directly into `((x&y)&0xFFFFFFFF~=0)`?
 -- 	return bit32.band(x, y) ~= 0
 -- end
 
