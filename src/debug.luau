@@ -1,5 +1,6 @@
 --!nocheck
 --!nolint
+local table = require('./table')
 
 -- 루아우 info 의 옵션을 getinfo 의 옵션으로 매핑
 local option_mapper = {
