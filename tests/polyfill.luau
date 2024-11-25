@@ -6,11 +6,65 @@ local utils = require("./utils")
 return function()
 	test.suite("bit32", function()
 		test.case("arshift", function()
-			utils.execute([[
+			check.equal(utils.execute([[
 
-			return bit32.arshift(2, 5)
+			return bit32.arshift(0b1111, 2)
 
-			]])
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.arshift(-4, 1)
+
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.arshift(0xFF, 32)
+
+			]]))
+		end)
+
+		test.case("extract", function()
+			check.equal(utils.execute([[
+
+			return bit32.extract(0x1234, 4, 4)
+
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.extract(0xFFFF, 8, 8)
+
+			]]))
+		end)
+
+		test.case("rrotate", function()
+			check.equal(utils.execute([[
+
+			return bit32.rrotate(0x12345678, 4)
+
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.rrotate(0x80000000, 1)
+
+			]]))
+		end)
+
+		test.case("lrotate", function()
+			check.equal(utils.execute([[
+
+			return bit32.lrotate(0x12345678, 4)
+
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.lrotate(0x80000000, 1)
+
+			]]))
 		end)
 	end)
 

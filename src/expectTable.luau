@@ -1,4 +1,4 @@
-local typeof = require("./globals").typeof
+local typeof = require("./typeof")
 
 --[=[
     Recommended to type check the tables due to custom types such as `buffer` from dal polyfill.

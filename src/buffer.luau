@@ -1,12 +1,11 @@
 -- Some implementations are inspired by https://github.com/dekkonot/bitbuffer/
 
-local buffer = {}
 local privateKey = require("./privateKey")
 local table = require("./table")
 local math = require("./math")
 local string = require("./string")
 local nativeTypes = require("./nativeTypes")
-local typeof = require("./globals").typeof
+local typeof = require("./typeof")
 local isNumber = require("./isNumber")
 local expectNumber = require("./expectNumber")
 local expectTable = require("./expectTable")
@@ -44,51 +43,34 @@ end
 
 nativeTypes[BufferMetatable] = "buffer"
 
-function buffer.create(size: number): buffer_polyfill
-	if _G.DAL_runtime_type_checking then
+local function create(size: number): buffer_polyfill
+	if _G.DAL_emulate_type_error then
 		expectNumber(size, 1, "create")
 	end
+
 	local data = table.create(size, 0)
 	return setmetatable({
 		[privateKey] = data,
 	}, BufferMetatable) :: any
 end
 
-function buffer.len(b: buffer_polyfill)
+local function len(b: buffer_polyfill)
 	if _G.DAL_runtime_type_checking then
 		expectTable(b, "buffer", 1, "len")
 	end
+
 	return #b[privateKey]
 end
 
--- function buffer.copy(target, targetOffset, source, sourceOffset, count)
--- 	local targetData = target[privatekey]
--- 	local sourceData = source[privatekey]
---     sourceOffset = sourceOffset or 0
---     count = count or #sourceData - sourceOffset
-
---     if target == source then
---         local temp = {}
---         for i = sourceOffset + 1, sourceOffset + count do
---             insert(temp, sourceData[i])
---         end
-
---         for i = 1, count do
---             targetData[targetOffset + i] = temp[i]
---         end
---     else
---         for i = 1, count do
---             targetData[targetOffset + i] = sourceData[sourceOffset + i]
---         end
---     end
--- end
-
-function buffer.copy(target: buffer_polyfill, targetOffset: number, source: buffer_polyfill, sourceOffset: number?, count: number?)
+local function copy(target: buffer_polyfill, targetOffset: number, source: buffer_polyfill, sourceOffset: number?, count: number?)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "copy"
 		expectTable(target, "buffer", 1, funcName)
-		expectNumber(targetOffset, 2, funcName)
 		expectTable(source, "buffer", 3, funcName)
+	end
+	if _G.DAL_emulate_type_error then
+		local funcName = "copy"
+		expectNumber(targetOffset, 2, funcName)
 		if sourceOffset ~= nil and not isNumber(sourceOffset) then
 			error(`invalid argument #4 to '{funcName}' (number expected, got {typeof(sourceOffset)})`)
 		end
@@ -96,17 +78,28 @@ function buffer.copy(target: buffer_polyfill, targetOffset: number, source: buff
 			error(`invalid argument #5 to '{funcName}' (number expected, got {typeof(count)})`)
 		end
 	end
-	error("todo!")
+
+	local sourceOffset = (sourceOffset or 0) + 1
+	local targetOffset = (targetOffset or 0) + 1
+	local count = count or 1
+	local targetData = target[privateKey]
+	local sourceData = source[privateKey]
+	for i = 0, count - 1 do
+		targetData[targetOffset + i] = sourceData[sourceOffset + i]
+	end
 end
 
-function buffer.fill(b: buffer_polyfill, offset: number, value: number, count: number)
+local function fill(b: buffer_polyfill, offset: number, value: number, count: number)
 	if _G.DAL_runtime_type_checking then
+		expectTable(b, "buffer", 1, "fill")
+	end
+	if _G.DAL_emulate_type_error then
 		local funcName = "fill"
-		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
 		expectNumber(value, 3, funcName)
 		expectNumber(count, 4, funcName)
 	end
+
 	local data = b[privateKey]
 	count = count or (#data - offset + 1)
 	value = band(value, 0xFF)
@@ -118,17 +111,20 @@ end
 
 -- unsigned integers
 
-function buffer.writeu8(b: buffer_polyfill, offset: number, value: number)
+local function writeu8(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
+		expectTable(b, "buffer", 1, "writeu8")
+	end
+	if _G.DAL_emulate_type_error then
 		local funcName = "writeu8"
-		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
 		expectNumber(offset, 3, funcName)
 	end
+
 	b[privateKey][offset + 1] = band(value, 0xFF)
 end
 
-function buffer.writeu16(b: buffer_polyfill, offset: number, value: number)
+local function writeu16(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writeu16"
 		expectTable(b, "buffer", 1, funcName)
@@ -140,7 +136,7 @@ function buffer.writeu16(b: buffer_polyfill, offset: number, value: number)
 	data[offset + 2] = band(rshift(value, 8), 0xFF)
 end
 
-function buffer.writeu32(b: buffer_polyfill, offset: number, value: number)
+local function writeu32(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writeu32"
 		expectTable(b, "buffer", 1, funcName)
@@ -154,7 +150,7 @@ function buffer.writeu32(b: buffer_polyfill, offset: number, value: number)
 	data[offset + 4] = band(rshift(value, 24), 0xFF)
 end
 
-function buffer.readu8(b: buffer_polyfill, offset: number)
+local function readu8(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readu8"
 		expectTable(b, "buffer", 1, funcName)
@@ -163,7 +159,7 @@ function buffer.readu8(b: buffer_polyfill, offset: number)
 	return b[privateKey][offset + 1]
 end
 
-function buffer.readu16(b: buffer_polyfill, offset: number)
+local function readu16(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readu16"
 		expectTable(b, "buffer", 1, funcName)
@@ -173,7 +169,7 @@ function buffer.readu16(b: buffer_polyfill, offset: number)
 	return bor(data[offset + 1], lshift(data[offset + 2], 8))
 end
 
-function buffer.readu32(b: buffer_polyfill, offset: number)
+local function readu32(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readu32"
 		expectTable(b, "buffer", 1, funcName)
@@ -188,7 +184,7 @@ end
 
 -- signed integers
 
-function buffer.writei8(b: buffer_polyfill, offset: number, value: number)
+local function writei8(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writei8"
 		expectTable(b, "buffer", 1, funcName)
@@ -202,7 +198,7 @@ function buffer.writei8(b: buffer_polyfill, offset: number, value: number)
 	b[privateKey][offset + 1] = band(value, 0xFF)
 end
 
-function buffer.writei16(b: buffer_polyfill, offset: number, value: number)
+local function writei16(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writei16"
 		expectTable(b, "buffer", 1, funcName)
@@ -218,7 +214,7 @@ function buffer.writei16(b: buffer_polyfill, offset: number, value: number)
 	data[offset + 2] = band(rshift(value, 8), 0xFF)
 end
 
-function buffer.writei32(b: buffer_polyfill, offset: number, value: number)
+local function writei32(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writei32"
 		expectTable(b, "buffer", 1, funcName)
@@ -236,7 +232,7 @@ function buffer.writei32(b: buffer_polyfill, offset: number, value: number)
 	data[offset + 4] = band(rshift(value, 24), 0xFF)
 end
 
-function buffer.readi8(b: buffer_polyfill, offset: number)
+local function readi8(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readi8"
 		expectTable(b, "buffer", 1, funcName)
@@ -253,7 +249,7 @@ function buffer.readi8(b: buffer_polyfill, offset: number)
 	end
 end
 
-function buffer.readi16(b: buffer_polyfill, offset: number)
+local function readi16(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local  funcName = "readi16"
 		expectTable(b, "buffer", 1, funcName)
@@ -271,7 +267,7 @@ function buffer.readi16(b: buffer_polyfill, offset: number)
 	end
 end
 
-function buffer.readi32(b: buffer_polyfill, offset: number)
+local function readi32(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readi32"
 		expectTable(b, "buffer", 1, funcName)
@@ -294,7 +290,7 @@ end
 
 -- float
 
-function buffer.writef32(b: buffer_polyfill, offset: number, value: number)
+local function writef32(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writef32"
 		expectTable(b, "buffer", 1, funcName)
@@ -356,7 +352,7 @@ function buffer.writef32(b: buffer_polyfill, offset: number, value: number)
 	data[offset + 4] = band(mantissa, 255) -- 8 mantissa
 end
 
-function buffer.writef64(b: buffer_polyfill, offset: number, value: number)
+local function writef64(b: buffer_polyfill, offset: number, value: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writef64"
 		expectTable(b, "buffer", 1, funcName)
@@ -444,7 +440,7 @@ function buffer.writef64(b: buffer_polyfill, offset: number, value: number)
 	data[offset + 8] = band(leastSignificantChunk, 255)
 end
 
-function buffer.readf32(b: buffer_polyfill, offset: number)
+local function readf32(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readf32"
 		expectTable(b, "buffer", 1, funcName)
@@ -479,7 +475,7 @@ function buffer.readf32(b: buffer_polyfill, offset: number)
 	return sign and -ldexp(mantissa, exponent - 127) or ldexp(mantissa, exponent - 127)
 end
 
-function buffer.readf64(b: buffer_polyfill, offset: number)
+local function readf64(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readf64"
 		expectTable(b, "buffer", 1, funcName)
@@ -524,7 +520,7 @@ end
 
 -- string
 
-function buffer.writestring(b: buffer_polyfill, offset: number, value: string, count: number?)
+local function writestring(b: buffer_polyfill, offset: number, value: string, count: number?)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "writestring"
 		expectTable(b, "buffer", 1, funcName)
@@ -540,7 +536,7 @@ function buffer.writestring(b: buffer_polyfill, offset: number, value: string, c
 	end
 end
 
-function buffer.readstring(b: buffer_polyfill, offset: number, count: number)
+local function readstring(b: buffer_polyfill, offset: number, count: number)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "readstring"
 		expectTable(b, "buffer", 1, funcName)
@@ -558,7 +554,7 @@ end
 
 -- serdes
 
-function buffer.tostring(b: buffer_polyfill): string
+local function tostring(b: buffer_polyfill): string
 	if _G.DAL_runtime_type_checking then
 		expectTable(b, "buffer", 1, "tostring")
 	end
@@ -570,7 +566,7 @@ function buffer.tostring(b: buffer_polyfill): string
 	return concat(t)
 end
 
-function buffer.fromstring(str: string): buffer_polyfill
+local function fromstring(str: string): buffer_polyfill
 	if _G.DAL_runtime_type_checking then
 		expectString(str, 1, "fromstring")
 	end
@@ -583,4 +579,33 @@ function buffer.fromstring(str: string): buffer_polyfill
 	}, BufferMetatable) :: any
 end
 
-return buffer
+if not _G.DAL_test and buffer then
+	return buffer :: any
+else
+	return {
+		create = create,
+		len = len,
+		copy = copy,
+		fill = fill,
+		writeu8 = writeu8,
+		writeu16 = writeu16,
+		writeu32 = writeu32,
+		readu8 = readu8,
+		readu16 = readu16,
+		readu32 = readu32,
+		writei8 = writei8,
+		writei16 = writei16,
+		writei32 = writei32,
+		readi8 = readi8,
+		readi16 = readi16,
+		readi32 = readi32,
+		writef32 = writef32,
+		writef64 = writef64,
+		readf32 = readf32,
+		readf64 = readf64,
+		writestring = writestring,
+		readstring = readstring,
+		tostring = tostring,
+		fromstring = fromstring
+	}
+end

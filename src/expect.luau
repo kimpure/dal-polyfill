@@ -1,4 +1,4 @@
-local typeof = require("./globals").typeof
+local typeof = require("./typeof")
 
 --- `expectNumber`, `expectString`, and `expectTable` are recommended for numbers, strings, and tables.
 type BasicTypeNames = "function" | "boolean"

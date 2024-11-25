@@ -1,19 +1,13 @@
 local utils = {}
 
 local luau = require("@lune/luau")
-local fs = require("@lune/fs")
-local serde = require("@lune/serde")
 
 function utils.executePolyfill(code: string)
-	local config: { libraries: { [string]: boolean } } = serde.decode("toml", fs.readFile("config.toml"))
-	for k, v in config.libraries do
-		_G["DAL_" .. k] = v
-	end
-	_G.DAL_test_bit32 = true
-	local libs = require("../libs")
+	_G.DAL_test = true
+	local globals = require("../src/globals")
 	return luau.load(code, {
 		debugName = "polyfill execution",
-		environment = libs,
+		environment = globals,
 		injectGlobals = true
 	})()
 end

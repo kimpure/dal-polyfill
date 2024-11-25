@@ -1,4 +1,4 @@
-local typeof = require("./globals").typeof
+local typeof = require("./typeof")
 local isNumber = require("./isNumber")
 
 --[=[
