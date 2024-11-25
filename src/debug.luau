@@ -1,6 +1,5 @@
 --!nocheck
 --!nolint
-local table = require('./table')
 
 -- 루아우 info 의 옵션을 getinfo 의 옵션으로 매핑
 local option_mapper = {
@@ -19,31 +18,28 @@ local option_keymap = {
 }
 
 --// a 옵션은 안됨  (구현 불가능)
+--// thread 안됨 (function or number)
 local function info(thread, level_or_func, s)
-    local useThread = type(thread) == 'thread'
-    local options, target
-    
-    if useThread then
-        if type(level_or_func) ~= "number" then
-            error("invalid argument #2 for 'getinfo' (invalid level)")
-        end
-        target = level_or_func 
-        options = s
-    else
-        options = level_or_func
-        target = thread
-        if type(target) == "number" then
-            target = target + 1
-        elseif type(target) ~= "function" then
-            error("invalid argument #1 for 'getinfo' (invalid level)")
-        end
-    end
-    
-    if type(options) ~= 'string' then
-        error("invalid option type (expected string)")
-    end
-    
-    local getinfo_options = options:gsub(".", function(char)
+	local useThread = false
+	if type(thread) == 'thread' then
+		if not (type(level_or_func) == "number") then
+			error "invalid argument #2 for 'getinfo' (invalid level)"
+		end
+		if not (type(s) == 'string') then
+			error "invalid argument #3 for 'getinfo' (invalid option)"
+		end
+		level_or_func = level_or_func + 1
+	else
+		s = level_or_func
+		level_or_func = thread
+		if not (type(level_or_func) == ("number" or "function")) then
+			error "invalid argument #1 for 'getinfo' (invalid level)"
+		end
+		if type(level_or_func) == "number" then
+			level_or_func = level_or_func + 1
+		end
+	end
+	local getinfo_options = s:gsub(".", function(char)
 		if char == "a" then
 			error "invalid argument #2 to 'getinfo' (a is unsupported option)"
 		end
@@ -53,28 +49,22 @@ local function info(thread, level_or_func, s)
 		end
 		return option
 	end)
-    
-	if not options_has_l then
-		options = options .. 'l'
+	local info = useThread and debug.getinfo(thread, level_or_func, getinfo_options) or debug.getinfo(level_or_func, getinfo_options)
+	if info.short_src then
+		info.short_src = string.format('[string "%s"]', info.short_src:gsub("%.lua$", ""))
 	end
-
-    local info = useThread and debug.getinfo(thread, target, getinfo_options) or debug.getinfo(target, getinfo_options)
-    local options_line_zero = debug.getinfo(thread, target, 'l')
-
-    if (not info) or (not options_line_zero) then
-        return 
-    end
-    
-    local result = {}
+	local result = {}
 	for char in s:gmatch(".") do
 		table.insert(result, info[option_keymap[char]])
 	end
 	return table.unpack(result, 1, #s)
 end
 
-
--- 예시
--- local co = coroutine.create(function() coroutine.yield() end) coroutine.resume(co) print((debug.info or info)(co, 1, "sl"))
+-- function x()
+--     print((debug.info or info)(1, 'n'))
+--	   print((debug.info or info)(corutine.create(x), 1, 'n'))
+-- end
+-- x()
 
 return {
 	info = info :: typeof(debug.info),
