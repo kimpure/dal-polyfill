@@ -1,5 +1,4 @@
---!nocheck
---!nolint
+--!strict
 
 local option_mapper = {
 	['s'] = 'S',
@@ -15,9 +14,13 @@ local option_keymap = {
 	['f'] = 'func',
 }
 
-local info = function(thread, level_or_func, s)
+local gmatch = string.gmatch
+local gsub = string.gsub
+
+-- :: (<A..., R1..., R2...>((A...) -> (R1...), string) -> (R2...)) & (<R...>(number, string) -> (R...)) & (<R...>(thread, number, string) -> (R...))
+local function info(thread: thread | number | (any) -> (any), level_or_func: number | string, s: string?)
     local useThread = type(thread) == 'thread'
-    local options, target
+    local options: any, target: any
     
     if useThread then
         if type(level_or_func) ~= "number" then
@@ -39,34 +42,32 @@ local info = function(thread, level_or_func, s)
         error("invalid option type (expected string)")
     end
     
-    local getinfo_options = options:gsub(".", function(char)
-		if char == "a" then
-			error "invalid argument #2 to 'getinfo' (a is unsupported option)"
-		end
-		local option = option_mapper[char]
-		if option == nil then
-			error "invalid argument #2 to 'getinfo' (invalid option)"
-		end
-		return option
-	end)
+    local function getInfoOptionsCall(char)
+        if char == "a" then
+            error "invalid argument #2 to 'getinfo' (a is unsupported option)"
+        end
+        local option = option_mapper[char]
+        if option == nil then
+            error "invalid argument #2 to 'getinfo' (invalid option)"
+        end
+        return option
+    end
+
+    local getinfoOptions = gsub(options, ".", getInfoOptionsCall)
     
-	if not options_has_l then
-		options = options .. 'l'
-	end
+    local info = useThread and (debug :: any).getinfo()(thread, target, getinfoOptions) or (debug :: any).getinfo()(target, getinfoOptions)
+    local optionsLineZero = (debug :: any).getinfo()(thread, target, 'l')
 
-    local info = useThread and debug.getinfo(thread, target, getinfo_options) or debug.getinfo(target, getinfo_options)
-    local options_line_zero = debug.getinfo(thread, target, 'l')
-
-    if (not info) or (not options_line_zero) then
+    if (not info) or (not optionsLineZero) then
         return 
     end
     
     local result = {}
-	for char in s:gmatch(".") do
+	for char in gmatch(options, ".") do
 		table.insert(result, info[option_keymap[char]])
 	end
-	return table.unpack(result, 1, #s)
-end :: (<A..., R1..., R2...>((A...) -> (R1...), string) -> (R2...)) & (<R...>(number, string) -> (R...)) & (<R...>(thread, number, string) -> (R...))
+	return table.unpack(result, 1, #options)
+end 
 
 -- local co = coroutine.create(function() coroutine.yield() end) coroutine.resume(co) print((debug.info or info)(co, 1, "sl"))
 
