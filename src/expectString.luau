@@ -13,11 +13,12 @@ local isString = require("./isString")
 	end
 	```
 ]=]
-return function(value: string, index: number, funcName: string): never
+return function(value: string, index: number, funcName: string): never?
 	if value ~= nil then
-		if not isString(value) then
-			return error(`invalid argument #{index} to '{funcName}' (string expected, got {typeof(value)})`, 2)
+		if isString(value) then
+			return
 		end
+		return error(`invalid argument #{index} to '{funcName}' (string expected, got {typeof(value)})`, 2)
 	end
 	return error(`missing argument #{index} to '{funcName}' (string expected)`, 2)
 end

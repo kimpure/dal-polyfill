@@ -6,6 +6,10 @@ local djb2 = require("./djb2")
 local insert = table.insert
 local sort = table.sort
 
+local function ascendingOrder(a: any, b)
+	return a < b
+end
+
 if _G.DAL_hash_iterator then
 	return function<K, V>(t: { [K]: V }): (({ [K]: V }, K?) -> (K?, V), { [K]: V }, nil)
 		if _G.DAL_runtime_type_checking then
@@ -32,16 +36,15 @@ if _G.DAL_hash_iterator then
 			hashmap[hash] = key
 		end
 
-		sort(keys, function(a: any, b)
-			return a < b
-		end)
+		sort(keys, ascendingOrder)
 
-		local function iterator(tbl: { [K]: V }, index: K?): (K?, V)
-			local nextIndex = next(tbl, index)
-			if not nextIndex then
+		local index = 0
+		local function iterator(tbl: { [K]: V }, _): (K?, V)
+			index += 1
+			local hashkey = keys[index]
+			if not hashkey then
 				return nil, nil :: any
 			end
-			local hashkey = keys[nextIndex :: any]
 			local key = hashmap[hashkey]
 			return key, tbl[key]
 		end

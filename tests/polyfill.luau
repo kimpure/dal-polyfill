@@ -66,11 +66,39 @@ return function()
 
 			]]))
 		end)
+
+		test.case("replace", function()
+			check.equal(utils.execute([[
+
+			return bit32.replace(0x1234, 0x5, 4, 4)
+
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.replace(0xFFFF, 0x0, 8, 8)
+
+			]]))
+		end)
+
+		test.case("countz", function()
+			check.equal(utils.execute([[
+
+			return bit32.countrz(32)
+
+			]]))
+
+			check.equal(utils.execute([[
+
+			return bit32.countlz(32)
+
+			]]))
+		end)
 	end)
 
 	test.suite("buffer", function()
 		test.case("integers", function()
-			local luauResult, polyfillResult = utils.execute([[
+			utils.checkTableEntriesEqual(utils.execute([[
 
 			local offset = 0
 			local b = buffer.create(14)
@@ -96,31 +124,540 @@ return function()
 			offset += 4
 
 			-- reading unsigned
+			local read = {}
 			offset = 0
-			buffer.readu8(b, offset)
+
+			table.insert(read, buffer.readu8(b, offset))
 			offset += 1
 
-			buffer.readu16(b, offset)
+			table.insert(read, buffer.readu16(b, offset))
 			offset += 2
 
-			buffer.readu32(b, offset)
+			table.insert(read, buffer.readu32(b, offset))
 			offset += 4
 
 			-- reading signed
-			buffer.readi8(b, offset)
+			table.insert(read, buffer.readi8(b, offset))
 			offset += 1
 
-			buffer.readi16(b, offset)
+			table.insert(read, buffer.readi16(b, offset))
 			offset += 2
 
-			buffer.readi32(b, offset)
+			table.insert(read, buffer.readi32(b, offset))
 			offset += 4
+
+			return { buffer.tostring(b), table.concat(read, ",") }
+
+			]]))
+		end)
+
+		test.case("floats", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			-- writing
+			local offset = 0
+			local b = buffer.create(12 * 3)
+
+			buffer.writef32(b, offset, 1234.56789)
+			offset += 4
+
+			buffer.writef64(b, offset, 1234.56789)
+			offset += 8
+
+			buffer.writef32(b, offset, math.huge)
+			offset += 4
+
+			buffer.writef64(b, offset, math.huge)
+			offset += 8
+
+			buffer.writef32(b, offset, 0)
+			offset += 4
+
+			buffer.writef64(b, offset, 0)
+			offset += 8
+
+			-- reading
+			local read = {}
+			offset = 0
+
+			table.insert(read, buffer.readf32(b, offset))
+			offset += 4
+
+			table.insert(read, buffer.readf64(b, offset))
+			offset += 8
+
+			table.insert(read, buffer.readf32(b, offset))
+			offset += 4
+
+			table.insert(read, buffer.readf64(b, offset))
+			offset += 8
+
+			table.insert(read, buffer.readf32(b, offset))
+			offset += 4
+
+			table.insert(read, buffer.readf64(b, offset))
+			offset += 8
+
+			return { buffer.tostring(b), table.concat(read, ",") }
+
+			]]))
+		end)
+
+		test.case("strings", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			-- writing
+			local offset = 0
+			local msg = "hello"
+			local char = "A"
+			local b = buffer.create(#msg + 4 + 1)
+
+			buffer.writeu32(b, offset, 12345678) -- just a test
+			offset += 4
+
+			buffer.writestring(b, offset, msg)
+			offset += #msg
+
+			buffer.writestring(b, offset, char, 1)
+			offset += 1
+
+			-- reading
+			local read = {}
+			offset = 0
+
+			table.insert(read, buffer.readu32(b, offset))
+			offset += 4
+
+			table.insert(read, buffer.readstring(b, offset, #msg))
+			offset += #msg
+
+			table.insert(read, buffer.readstring(b, offset, 1))
+			offset += 1
+
+			return {buffer.tostring(b), table.concat(read, ",")}
+
+			]]))
+		end)
+
+		test.case("fill", function()
+			check.equal(utils.execute([[
+
+			local b = buffer.create(4)
+
+			buffer.fill(b, 0, 255, 4)
 
 			return buffer.tostring(b)
 
-			]])
+			]]))
+		end)
 
-			check.equal(luauResult, polyfillResult)
+		test.case("copy", function()
+			check.equal(utils.execute([[
+
+			local b = buffer.create(4)
+			local source = buffer.create(4)
+
+			buffer.writeu32(source, 0, 12345678)
+			buffer.copy(b, 0, source, 0, 4)
+
+			return buffer.tostring(b)
+
+			]]))
+		end)
+
+		test.case("len", function()
+			check.equal(utils.execute([[
+
+			return buffer.len(buffer.create(5))
+
+			]]))
+		end)
+
+		test.case("fromstring", function()
+			check.equal(utils.execute([[
+
+			local b = buffer.fromstring("abcd")
+
+			local read = {}
+
+			table.insert(read, buffer.readu32(b, 0))
+			table.insert(read, buffer.readi32(b, 0))
+			table.insert(read, buffer.readf32(b, 0))
+
+			return table.concat(read, ",")
+
+			]]))
+		end)
+	end)
+
+	test.suite("debug", function()
+		test.case("info", function()
+
+		end)
+	end)
+
+	test.suite("global functions", function()
+		test.case("types", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			local types = {}
+			local b = buffer.create(1)
+
+			table.insert(types, type(b))
+			table.insert(types, typeof(b))
+			table.insert(types, type(true))
+			table.insert(types, typeof(false))
+			table.insert(types, type(1))
+			table.insert(types, typeof(2))
+			table.insert(types, type("a"))
+			table.insert(types, typeof("ABCD"))
+			table.insert(types, type({}))
+			table.insert(types, typeof({}))
+			table.insert(types, type(newproxy()))
+			table.insert(types, typeof(newproxy()))
+			table.insert(types, type(type))
+			table.insert(types, typeof(function() end))
+			table.insert(types, type(table.freeze({})))
+			table.insert(types, typeof(table.freeze({1})))
+
+			return types
+
+			]]))
+		end)
+
+		test.case("rawset/get", function()
+			check.equal(utils.execute([[
+			local t = setmetatable({}, {
+				__newindex = function()
+					return "this is newindex"
+				end,
+				__index = function()
+					return "this is index"
+				end
+			})
+
+			rawset(t, "key", "value")
+			return rawget(t, "key")
+
+			]]))
+		end)
+
+		test.case("calling next with invalid table", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+			return {pcall(next, newproxy())}
+			]]))
+		end)
+
+		test.case("emulating newproxy/userdata", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+			return {
+				{pcall(function()
+					newproxy().key = true
+				end)},
+				{pcall(function()
+					return newproxy(true).key
+				end)},
+				{pcall(function()
+					return newproxy(false) < newproxy(true)
+				end)},
+				{pcall(function()
+					return newproxy() + 5
+				end)},
+			}
+			]]))
+		end)
+
+		test.case("iterators", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			local t = {}
+			local hashTable = {
+				apple = 55,
+				banana = 111,
+				peach = 123,
+				grape = 255
+			}
+
+			for _ = 1, 100 do
+				local i = 0
+				for _, v in pairs(hashTable) do
+					i += 1
+					t[i] = v
+				end
+
+				i = 0
+				for _, v in pairs(hashTable) do
+					i += 1
+					t[i] -= v
+				end
+			end
+
+			return t
+
+			]]))
+		end)
+
+		test.case("version", function()
+			check.equal(utils.executeWithLuau([[
+
+			return _VERSION
+
+			]]))
+		end)
+	end)
+
+	test.suite("math", function()
+		test.case("atan", function()
+			check.equal(utils.execute([[
+			return math.atan(123)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.atan(1/3)
+			]]))
+		end)
+
+		test.case("atan2", function()
+			check.equal(utils.execute([[
+			return math.atan2(1, 2)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.atan2(6, 9)
+			]]))
+		end)
+
+		test.case("clamp", function()
+			check.equal(utils.execute([[
+			return math.clamp(5, -1, 3)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.clamp(-5, -1, 10)
+			]]))
+		end)
+
+		test.case("cosh", function()
+			check.equal(utils.execute([[
+			return math.cosh(123)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.cosh(math.rad(30))
+			]]))
+		end)
+
+		test.case("sinh", function()
+			check.equal(utils.execute([[
+			return math.sinh(123)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.sinh(math.rad(30))
+			]]))
+		end)
+
+		test.case("tanh", function()
+			check.equal(utils.execute([[
+			return math.tanh(123)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.tanh(math.rad(90))
+			]]))
+		end)
+
+		test.case("pow", function()
+			check.equal(utils.execute([[
+			return math.pow(2, 8)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.pow(2, -16)
+			]]))
+		end)
+
+		test.case("frexp", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+			return { math.frexp(1.234) }
+			]]))
+
+			utils.checkTableEntriesEqual(utils.execute([[
+			return { math.frexp(33) }
+			]]))
+		end)
+
+		test.case("ldexp", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+			return { math.ldexp(1.234, 1.234) }
+			]]))
+
+			utils.checkTableEntriesEqual(utils.execute([[
+			return { math.ldexp(33, 12) }
+			]]))
+		end)
+
+		test.case("log10", function()
+			check.equal(utils.execute([[
+			return math.log10(10)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.log10(2)
+			]]))
+		end)
+
+		test.case("round", function()
+			check.equal(utils.execute([[
+			return math.round(0.5)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.round(0.54321)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.round(0.1)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.round(0.9)
+			]]))
+		end)
+
+		test.case("sign", function()
+			check.equal(utils.execute([[
+			return math.sign(-123)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.sign(123)
+			]]))
+		end)
+
+		test.case("noise(perlin)", function()
+			check.equal(utils.execute([[
+			return math.noise(1.5)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.noise(1.5, 2.5)
+			]]))
+
+			check.equal(utils.execute([[
+			return math.noise(1.5, 2.5, 3.5)
+			]]))
+		end)
+	end)
+
+	test.suite("string", function()
+		test.case("split method", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+			return ("a,bc,def"):split(",")
+			]]))
+		end)
+
+		test.case("split", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+			return {
+				unpack(string.split("apple;banana", ";")),
+				unpack(string.split(";apple;banana;", ";")),
+				unpack(string.split("apple;banana;", ".")),
+			}
+			]]))
+		end)
+	end)
+
+	test.suite("table", function()
+		test.case("create and clear", function()
+			check.equal(utils.execute([[
+
+			local t = table.create(math.random(20, 50), "A")
+
+			table.clear(t)
+
+			return #t
+
+			]]))
+		end)
+
+		test.case("clone", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			local checks = {}
+
+			local fruits = {"banana", "apple", "peach", "grape"}
+
+			table.insert(checks, table.clone(fruits))
+
+			local readOnly = setmetatable({}, {
+				__newindex = function()
+					error("this is read-only!")
+				end
+			})
+
+			table.insert(checks, {pcall(function()
+				local newReadOnly = table.clone(readOnly)
+
+				newReadOnly.key = "value"
+			end)})
+
+			return checks
+
+			]]))
+		end)
+
+		test.case("find", function()
+			check.equal(utils.execute([[
+
+			local t = {"A", "AA", "AAA", "S", "SS", "SS", "SS", "SS", "BB", "BB", "C"}
+
+			return table.find(t, "SS")
+
+			]]))
+		end)
+
+		test.case("foreach", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			local sum = 0
+			table.foreach({ a = 1, b = 2, c = 3, d = 4 }, function(k, v)
+				sum = sum + v
+			end)
+
+			local msg = ""
+			local doubleLastIndex = 0
+			table.foreachi({ "A", "PP", "L", "E" }, function(i, v)
+				msg = msg .. v
+				doubleLastIndex = i * 2
+			end)
+
+			return { sum, msg, doubleLastIndex }
+
+			]]))
+		end)
+
+		test.case("freeze", function()
+			check.equal(utils.execute([[
+
+			local readonly = table.freeze({})
+
+			return pcall(function()
+				readonly.key = "value"
+			end)
+
+			]]))
+		end)
+
+		test.case("getn maxn", function()
+			utils.checkTableEntriesEqual(utils.execute([[
+
+			return {
+				table.getn({1, 2, 3, 4}),
+				table.maxn({"apple", "banana", "grape"})
+			}
+
+			]]))
 		end)
 	end)
 end

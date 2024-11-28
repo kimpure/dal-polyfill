@@ -85,7 +85,7 @@ local function find(t: {}, value: any): number?
 	return nil
 end
 
-local function foreach(t: {}, fn: (any, any) -> ()): ()
+local function foreach<K, V>(t: { [K]: V }, fn: (K, V) -> ()): ()
 	if _G.DAL_runtime_type_checking then
 		expectTable(t, "table", 1, "foreach")
 	end
@@ -93,12 +93,12 @@ local function foreach(t: {}, fn: (any, any) -> ()): ()
 		expect(fn, "function", 2, "foreach")
 	end
 
-	for i, v in dal_pairs(t) do
-		fn(i, v)
+	for k, v in dal_pairs(t) do
+		fn(k, v)
 	end
 end
 
-local function foreachi(t: {}, fn: (number, any) -> ()): ()
+local function foreachi<V>(t: { V }, fn: (number, V) -> ()): ()
 	if _G.DAL_runtime_type_checking then
 		expectTable(t, "table", 1, "foreachi")
 	end
@@ -106,7 +106,7 @@ local function foreachi(t: {}, fn: (number, any) -> ()): ()
 		expect(fn, "function", 2, "foreachi")
 	end
 
-	for i, v in dal_pairs(t) do
+	for i, v in pairs(t) do
 		if type(i) == "number" then
 			fn(i, v)
 		end

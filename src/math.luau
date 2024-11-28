@@ -156,7 +156,7 @@ local function ldexp(x: number, e: number): number
 		expectNumber(e, 2, funcName)
 	end
 
-	return x * 2 ^ e
+	return x * 2 ^ floor(e)
 end
 
 local function log10(x: number): number
@@ -164,7 +164,7 @@ local function log10(x: number): number
 		expectNumber(x, 1, "log10")
 	end
 
-	return log(x) / log(10)
+	return log(x, 10)
 end
 
 local function round(n: number): number
@@ -192,7 +192,7 @@ end
 if _G.DAL_test then
 	return {
 		atan = atan,
-		atan2 = atan2,
+		atan2 = math.atan2 or atan2,
 		clamp = clamp,
 		cosh = cosh,
 		sinh = sinh,

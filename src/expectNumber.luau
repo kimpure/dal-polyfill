@@ -13,11 +13,12 @@ local isNumber = require("./isNumber")
 	end
 	```
 ]=]
-return function(value: number, index: number, funcName: string): never
+return function(value: number, index: number, funcName: string): never?
 	if value ~= nil then
-		if not isNumber(value) then
-			return error(`invalid argument #{index} to '{funcName}' (number expected, got {typeof(value)})`, 2)
+		if isNumber(value) then
+			return
 		end
+		return error(`invalid argument #{index} to '{funcName}' (number expected, got {typeof(value)})`, 2)
 	end
 	return error(`missing argument #{index} to '{funcName}' (number expected)`, 2)
 end

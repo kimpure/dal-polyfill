@@ -1,8 +1,4 @@
---[[
-    Implemented as described here:
-    http://flafla2.github.io/2014/08/09/perlinnoise.html
-]]
---
+-- lua port of https://github.com/luau-lang/luau/blob/master/VM/src/lmathlib.cpp
 
 local floor = math.floor
 local band = bit32.band
@@ -40,7 +36,7 @@ local kPerlinGrad = {
 }
 
 local function perlin_grad(hash, x, y, z): number
-	local g = kPerlinGrad[bit32.band(hash, 15) + 1]
+	local g = kPerlinGrad[band(hash, 15) + 1]
 	return g[1] * x + g[2] * y + g[3] * z
 end
 
@@ -52,51 +48,40 @@ local function perlin_lerp(t: number, a: number, b: number): number
 	return a + t * (b - a)
 end
 
-return function(x: number, y0: number?, z0: number?): number
-	local y = y0 or 0
-	local z = z0 or 0
+return function(x: number, y: number?, z: number?)
+	local y = y or 0
+	local z = z or 0
 
-	local xi = band(floor(x), 255)
-	local yi = band(floor(y), 255)
-	local zi = band(floor(z), 255)
+	local xflr = floor(x)
+	local yflr = floor(y)
+	local zflr = floor(z)
 
-	x = x - floor(x)
-	y = y - floor(y)
-	z = z - floor(z)
+	local xi = band(xflr, 255)
+	local yi = band(yflr, 255)
+	local zi = band(zflr, 255)
 
-	local u = perlin_fade(x)
-	local v = perlin_fade(y)
-	local w = perlin_fade(z)
+	local xf = x - xflr
+	local yf = y - yflr
+	local zf = z - zflr
+
+	local u = perlin_fade(xf)
+	local v = perlin_fade(yf)
+	local w = perlin_fade(zf)
 
 	local p = kPerlinHash
-	local A, AA, AB, AAA, ABA, AAB, ABB, B, BA, BB, BAA, BBA, BAB, BBB
-	A = p[xi + 1] + yi
-	AA = p[A + 1] + zi
-	AB = p[A + 1 + 1] + zi
-	AAA = p[AA + 1]
-	ABA = p[AB + 1]
-	AAB = p[AA + 1 + 1]
-	ABB = p[AB + 1 + 1]
 
-	B = p[xi + 1 + 1] + yi
-	BA = p[B + 1] + zi
-	BB = p[B + 1 + 1] + zi
-	BAA = p[BA + 1]
-	BBA = p[BB + 1]
-	BAB = p[BA + 1 + 1]
-	BBB = p[BB + 1 + 1]
+	local a = band(p[xi + 1] + yi, 255)
+	local aa = band(p[a + 1] + zi, 255)
+	local ab = band(p[a + 1 + 1] + zi, 255)
 
-	return perlin_lerp(
-		w,
-		perlin_lerp(
-			v,
-			perlin_lerp(u, perlin_grad(AAA, x, y, z), perlin_grad(BAA, x - 1, y, z)),
-			perlin_lerp(u, perlin_grad(ABA, x, y - 1, z), perlin_grad(BBA, x - 1, y - 1, z))
-		),
-		perlin_lerp(
-			v,
-			perlin_lerp(u, perlin_grad(AAB, x, y, z - 1), perlin_grad(BAB, x - 1, y, z - 1)),
-			perlin_lerp(u, perlin_grad(ABB, x, y - 1, z - 1), perlin_grad(BBB, x - 1, y - 1, z - 1))
-		)
-	)
+	local b = band(p[xi + 1 + 1] + yi, 255)
+	local ba = band(p[b + 1] + zi, 255)
+	local bb = band(p[b + 1 + 1] + zi, 255)
+
+	local la = perlin_lerp(u, perlin_grad(p[aa + 1], xf, yf, zf), perlin_grad(p[ba + 1], xf - 1, yf, zf))
+	local lb = perlin_lerp(u, perlin_grad(p[ab + 1], xf, yf - 1, zf), perlin_grad(p[bb + 1], xf - 1, yf - 1, zf))
+	local la1 = perlin_lerp(u, perlin_grad(p[aa + 1 + 1], xf, yf, zf - 1), perlin_grad(p[ba + 1 + 1], xf - 1, yf, zf - 1))
+	local lb1 = perlin_lerp(u, perlin_grad(p[ab + 1 + 1], xf, yf - 1, zf - 1), perlin_grad(p[bb + 1 + 1], xf - 1, yf - 1, zf - 1))
+
+	return perlin_lerp(w, perlin_lerp(v, la, lb), perlin_lerp(v, la1, lb1))
 end

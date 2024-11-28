@@ -3,8 +3,8 @@ removes = ["io", "module", "package", "dofile", "loadfile", "load"]
 
 [config]
 # this setting allows type checking (usually for tables. because userdata mimics using tables)
-# if you really sure userdata is not used as table, you can disable it for optimization.
-# but still not recommended to disable it.
+# if you really sure userdata is not used as table, you can disable it for extra optimization.
+# while still not recommended to disable it, you can turn this off if you don't use any newproxy().
 runtime_type_checking = true
 
 # common settings
