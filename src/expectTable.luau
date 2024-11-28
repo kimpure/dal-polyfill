@@ -1,4 +1,4 @@
-local typeof = require("./globals").typeof
+local typeof = require("./typeof")
 
 --[=[
     Recommended to type check the tables due to custom types such as `buffer` from dal polyfill.
@@ -14,11 +14,12 @@ local typeof = require("./globals").typeof
 	end
 	```
 ]=]
-return function<T>(value: T, typeName: "table" | string, index: number, funcName: string): never
+return function<T>(value: T, typeName: "table" | string, index: number, funcName: string): never?
 	if value ~= nil then
-		if typeof(value) ~= typeName then
-			return error(`invalid argument #{index} to '{funcName}' ({typeName} expected, got {typeof(value)})`, 2)
+		if typeof(value) == typeName then
+			return
 		end
+		return error(`invalid argument #{index} to '{funcName}' ({typeName} expected, got {typeof(value)})`, 2)
 	end
 	return error(`missing argument #{index} to '{funcName}' ({typeName} expected)`, 2)
 end

@@ -1,0 +1,18 @@
+globals = "src/globals.luau"
+removes = ["io", "module", "package", "dofile", "loadfile", "load"]
+
+[config]
+# this setting allows type checking (usually for tables. because userdata mimics using tables)
+# if you really sure userdata is not used as table, you can disable it for extra optimization.
+# while still not recommended to disable it, you can turn this off if you don't use any newproxy().
+runtime_type_checking = true
+
+# common settings
+hash_iterator = true # not recommended to disable it since it's an important luau's feature.
+allow_debug_library_usage = false # if you allow, the polyfill will use like debug.getmetatable thing.
+test = false # enable it if you want to test polyfill.
+
+# disable emulating settings if you want more runtime-optimized code.
+emulate_frozen_table = true # emulates frozen tables
+emulate_newproxy = true # emulates userdata's behavior
+emulate_type_error = true # emulates luau's type error and messages too

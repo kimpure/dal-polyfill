@@ -1,4 +1,4 @@
-local typeof = require("./globals").typeof
+local typeof = require("./typeof")
 
 --- `expectNumber`, `expectString`, and `expectTable` are recommended for numbers, strings, and tables.
 type BasicTypeNames = "function" | "boolean"
@@ -17,11 +17,12 @@ type BasicTypeNames = "function" | "boolean"
 
 	Recommended to use `expectNumber`, `expectString`, and `expectTable` for `number`s, `string`s, and `table`s.
 ]=]
-return function<T>(value: T, typeName: BasicTypeNames, index: number, funcName: string): never
+return function<T>(value: T, typeName: BasicTypeNames, index: number, funcName: string): never?
 	if value ~= nil then
-		if type(value) ~= typeName then
-			return error(`invalid argument #{index} to '{funcName}' ({typeName} expected, got {typeof(value)})`, 2)
+		if type(value) == typeName then
+			return
 		end
+		return error(`invalid argument #{index} to '{funcName}' ({typeName} expected, got {typeof(value)})`, 2)
 	end
 	return error(`missing argument #{index} to '{funcName}' ({typeName} expected)`, 2)
 end

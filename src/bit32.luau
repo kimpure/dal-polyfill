@@ -1,4 +1,4 @@
-local isnumber = require("./isnumber")
+local expectNumber = require("./expectNumber")
 
 local LN2 = math.log(2)
 local log = math.log
@@ -10,34 +10,33 @@ local bnot = bit32.bnot
 local bor = bit32.bor
 
 local function arshift(x: number, disp: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'arshift' (number expected, got {typeof(x)})`)
-		elseif not isnumber(disp) then
-			error(`invalid argument #2 to 'arshift' (number expected, got {typeof(disp)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "arshift"
+		expectNumber(x, 1, funcName)
+		expectNumber(disp, 2, funcName)
 	end
 
+	x = band(x, 0xFFFFFFFF)
+
 	local z = rshift(x, disp)
-	if x >= 0x80000000 then
-		z = z + lshift(2 ^ disp - 1, 32 - disp)
+
+	if band(x, 0x80000000) ~= 0 then
+		z = bor(z, lshift(0xFFFFFFFF, 32 - disp))
 	end
+
 	return z
 end
 
--- local function btest(x: number, y: number): boolean -- can be converted directly?
+-- local function btest(x: number, y: number): boolean -- can be converted directly into `((x&y)&0xFFFFFFFF~=0)`?
 -- 	return bit32.band(x, y) ~= 0
 -- end
 
 local function extract(n: number, field: number, width: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(n) then
-			error(`invalid argument #1 to 'extract' (number expected, got {typeof(n)})`)
-		elseif not isnumber(field) then
-			error(`invalid argument #2 to 'extract' (number expected, got {typeof(field)})`)
-		elseif not isnumber(width) then
-			error(`invalid argument #3 to 'extract' (number expected, got {typeof(width)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "extract"
+		expectNumber(n, 1, funcName)
+		expectNumber(field, 2, funcName)
+		expectNumber(width, 3, funcName)
 	end
 
 	width = width or 1
@@ -45,12 +44,10 @@ local function extract(n: number, field: number, width: number): number
 end
 
 local function rrotate(x: number, disp: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'rrotate' (number expected, got {typeof(x)})`)
-		elseif not isnumber(disp) then
-			error(`invalid argument #2 to 'rrotate' (number expected, got {typeof(disp)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "rrotate"
+		expectNumber(x, 1, funcName)
+		expectNumber(disp, 2, funcName)
 	end
 
 	disp = disp % 32
@@ -59,28 +56,22 @@ local function rrotate(x: number, disp: number): number
 end
 
 local function lrotate(x: number, disp: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'lrotate' (number expected, got {typeof(x)})`)
-		elseif not isnumber(disp) then
-			error(`invalid argument #2 to 'lrotate' (number expected, got {typeof(disp)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "rrotate"
+		expectNumber(x, 1, funcName)
+		expectNumber(disp, 2, funcName)
 	end
 
 	return rrotate(x, -disp)
 end
 
 local function replace(n: number, v: number, field: number, width: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(n) then
-			error(`invalid argument #1 to 'replace' (number expected, got {typeof(n)})`)
-		elseif not isnumber(v) then
-			error(`invalid argument #2 to 'replace' (number expected, got {typeof(v)})`)
-		elseif not isnumber(field) then
-			error(`invalid argument #3 to 'replace' (number expected, got {typeof(field)})`)
-		elseif not isnumber(width) then
-			error(`invalid argument #4 to 'replace' (number expected, got {typeof(width)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "replace"
+		expectNumber(n, 1, funcName)
+		expectNumber(v, 2, funcName)
+		expectNumber(field, 3, funcName)
+		expectNumber(width, 4, funcName)
 	end
 
 	width = width or 1
@@ -91,10 +82,8 @@ local function replace(n: number, v: number, field: number, width: number): numb
 end
 
 local function countrz(x: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'countrz' (number expected, got {typeof(x)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "countrz")
 	end
 
 	local as32bit = rshift(x, 0)
@@ -111,10 +100,8 @@ local function countrz(x: number): number
 end
 
 local function countlz(x: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'countlz' (number expected, got {typeof(x)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "countlz")
 	end
 
 	local as32bit = rshift(x, 0)
@@ -125,22 +112,24 @@ local function countlz(x: number): number
 end
 
 local function byteswap(n: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(n) then
-			error(`invalid argument #1 to 'byteswap' (number expected, got {typeof(n)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(n, 1, "byteswap")
 	end
 
 	return bor(bor(bor(lshift(n, 24), band(lshift(n, 8), 0xff0000)), band(rshift(n, 8), 0xff00)), rshift(n, 24))
 end
 
-return (not _G.DAL_test_bit32 and bit32)
-	or {
-		arshift = arshift,
-		extract = extract,
-		lrotate = lrotate,
-		replace = replace,
-		countrz = countrz,
-		countlz = countlz,
-		byteswap = byteswap,
+if not _G.DAL_test and bit32 then
+	return bit32 :: any
+else
+	return {
+		arshift = arshift :: typeof(bit32.arshift),
+		extract = extract :: typeof(bit32.extract),
+		rrotate = rrotate :: typeof(bit32.rrotate),
+		lrotate = lrotate :: typeof(bit32.lrotate),
+		replace = replace :: typeof(bit32.replace),
+		countrz = countrz :: typeof(bit32.countrz),
+		countlz = countlz :: typeof(bit32.countlz),
+		byteswap = byteswap :: typeof(bit32.byteswap),
 	} -- for lua54 or something
+end

@@ -3,5 +3,8 @@
 	"aliases": {
 		"frktest": "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/",
 		"tests": "tests/"
+	},
+	"lint": {
+		"LocalShadow": false
 	}
 }

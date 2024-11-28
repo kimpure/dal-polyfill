@@ -1,6 +1,5 @@
 local perlin = require("./perlin")
-local typeof = require("./globals").typeof
-local isnumber = require("./isnumber")
+local expectNumber = require("./expectNumber")
 
 local getmax = math.max
 local getmin = math.min
@@ -12,34 +11,29 @@ local log2 = log(2)
 local math_atan = math.atan
 
 local function atan(a: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(a) then
-			error(`invalid argument #1 to 'atan' (number expected, got {typeof(a)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(a, 1, "atan")
 	end
+
 	return math_atan(a)
 end
 
 local function atan2(a: number, b: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(a) then
-			error(`invalid argument #1 to 'atan2' (number expected, got {typeof(a)})`)
-		elseif not isnumber(b) then
-			error(`invalid argument #2 to 'atan2' (number expected, got {typeof(b)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "atan2"
+		expectNumber(a, 1, funcName)
+		expectNumber(b, 2, funcName)
 	end
+
 	return (math_atan :: any)(a, b)
 end
 
 local function clamp(v: number, min: number, max: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(v) then
-			error(`invalid argument #1 to 'clamp' (number expected, got {typeof(v)})`)
-		elseif not isnumber(min) then
-			error(`invalid argument #2 to 'clamp' (number expected, got {typeof(min)})`)
-		elseif not isnumber(max) then
-			error(`invalid argument #3 to 'clamp' (number expected, got {typeof(max)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "clamp"
+		expectNumber(v, 1, funcName)
+		expectNumber(min, 2, funcName)
+		expectNumber(max, 3, funcName)
 	end
 
 	if min > max then
@@ -50,11 +44,10 @@ local function clamp(v: number, min: number, max: number): number
 end
 
 local function cosh(x: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'cosh' (number expected, got {typeof(x)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "cosh")
 	end
+
 	if x == 0.0 then
 		return 1.0
 	end
@@ -67,11 +60,10 @@ local function cosh(x: number): number
 end
 
 local function sinh(x: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'sinh' (number expected, got {typeof(x)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "sinh")
 	end
+
 	if x == 0 then
 		return 0.0
 	end
@@ -98,11 +90,10 @@ local function sinh(x: number): number
 end
 
 local function tanh(x: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'tanh' (number expected, got {typeof(x)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "tanh")
 	end
+
 	if x == 0 then
 		return 0.0
 	end
@@ -129,22 +120,20 @@ local function tanh(x: number): number
 end
 
 local function pow(a: number, b: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(a) then
-			error(`invalid argument #1 to 'pow' (number expected, got {typeof(a)})`)
-		elseif not isnumber(b) then
-			error(`invalid argument #2 to 'pow' (number expected, got {typeof(b)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "pow"
+		expectNumber(a, 1, funcName)
+		expectNumber(b, 2, funcName)
 	end
+
 	return a ^ b
 end
 
 local function frexp(x: number): (number, number)
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'frexp' (number expected, got {typeof(x)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "frexp")
 	end
+
 	if x == 0 then
 		return 0.0, 0.0
 	end
@@ -161,40 +150,36 @@ local function frexp(x: number): (number, number)
 end
 
 local function ldexp(x: number, e: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'ldexp' (number expected, got {typeof(x)})`)
-		elseif not isnumber(e) then
-			error(`invalid argument #2 to 'ldexp' (number expected, got {typeof(e)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		local funcName = "ldexp"
+		expectNumber(x, 1, funcName)
+		expectNumber(e, 2, funcName)
 	end
-	return x * 2 ^ e
+
+	return x * 2 ^ floor(e)
 end
 
-local function log10(x): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(x) then
-			error(`invalid argument #1 to 'log10' (number expected, got {typeof(x)})`)
-		end
+local function log10(x: number): number
+	if _G.DAL_emulate_type_error then
+		expectNumber(x, 1, "log10")
 	end
-	return log(x) / log(10)
+
+	return log(x, 10)
 end
 
 local function round(n: number): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(n) then
-			error(`invalid argument #1 to 'round' (number expected, got {typeof(n)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(n, 1, "round")
 	end
+
 	return floor((floor(n * 2) + 1) / 2)
 end
 
-local function sign(n): number
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(n) then
-			error(`invalid argument #1 to 'sign' (number expected, got {typeof(n)})`)
-		end
+local function sign(n: number): number
+	if _G.DAL_emulate_type_error then
+		expectNumber(n, 1, "sign")
 	end
+
 	if n > 0 then
 		return 1
 	elseif n < 0 then
@@ -204,39 +189,78 @@ local function sign(n): number
 	end
 end
 
-return {
-	atan = atan,
-	atan2 = atan2,
-	clamp = clamp,
-	cosh = cosh,
-	sinh = sinh,
-	tanh = tanh,
-	pow = pow,
-	noise = perlin,
-	frexp = frexp,
-	ldexp = ldexp,
-	log10 = log10,
-	round = round,
-	sign = sign,
-	abs = math.abs,
-	acos = math.acos,
-	asin = math.asin,
-	ceil = math.ceil,
-	cos = math.cos,
-	deg = math.deg,
-	exp = math.exp,
-	floor = math.floor,
-	fmod = math.fmod,
-	huge = math.huge,
-	log = math.log,
-	max = math.max,
-	min = math.min,
-	modf = math.modf,
-	pi = math.pi,
-	rad = math.rad,
-	random = math.random,
-	randomseed = math.randomseed,
-	sin = math.sin,
-	sqrt = math.sqrt,
-	tan = math.tan,
-} :: typeof(math)
+if _G.DAL_test then
+	return {
+		atan = atan,
+		atan2 = math.atan2 or atan2,
+		clamp = clamp,
+		cosh = cosh,
+		sinh = sinh,
+		tanh = tanh,
+		pow = pow,
+		noise = perlin,
+		frexp = frexp,
+		ldexp = ldexp,
+		log10 = log10,
+		round = round,
+		sign = sign,
+		abs = math.abs,
+		acos = math.acos,
+		asin = math.asin,
+		ceil = math.ceil,
+		cos = math.cos,
+		deg = math.deg,
+		exp = math.exp,
+		floor = math.floor,
+		fmod = math.fmod,
+		huge = math.huge,
+		log = math.log,
+		max = math.max,
+		min = math.min,
+		modf = math.modf,
+		pi = math.pi,
+		rad = math.rad,
+		random = math.random,
+		randomseed = math.randomseed,
+		sin = math.sin,
+		sqrt = math.sqrt,
+		tan = math.tan,
+	} :: typeof(math)
+else
+	return {
+		atan = math.atan or atan,
+		atan2 = math.atan2 or atan2,
+		clamp = math.clamp or clamp,
+		cosh = math.cosh or cosh,
+		sinh = math.sinh or sinh,
+		tanh = math.tanh or tanh,
+		pow = math.pow or pow,
+		noise = math.noise or perlin,
+		frexp = math.frexp or frexp,
+		ldexp = math.ldexp or ldexp,
+		log10 = math.log10 or log10,
+		round = math.round or round,
+		sign = math.sign or sign,
+		abs = math.abs,
+		acos = math.acos,
+		asin = math.asin,
+		ceil = math.ceil,
+		cos = math.cos,
+		deg = math.deg,
+		exp = math.exp,
+		floor = math.floor,
+		fmod = math.fmod,
+		huge = math.huge,
+		log = math.log,
+		max = math.max,
+		min = math.min,
+		modf = math.modf,
+		pi = math.pi,
+		rad = math.rad,
+		random = math.random,
+		randomseed = math.randomseed,
+		sin = math.sin,
+		sqrt = math.sqrt,
+		tan = math.tan,
+	} :: typeof(math)
+end

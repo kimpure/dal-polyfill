@@ -1,27 +1,27 @@
-local typeof = require("./globals").typeof
-local lockedtables = require("./lockedtables")
-local isnumber = require("./isnumber")
+local lockedTables = require("./lockedTables")
+local expectTable = require("./expectTable")
+local expectNumber = require("./expectNumber")
+local expect = require("./expect")
+local dal_pairs = require("./pairs")
 
 local function clear(t: {})
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'clear' (table expected, got {typeof(t)})`)
-		end
+		expectTable(t, "table", 1, "clear")
 	end
+
 	for i in pairs(t) do
 		t[i] = nil
 	end
 end
 
 local clone: any
-if _G.DAL_allow_debug_library_usage then
+if _G.DAL_allow_debug_library_usage and (debug :: any).getmetatable then
 	local getmt = (debug :: any).getmetatable
 	clone = function(t: {})
 		if _G.DAL_runtime_type_checking then
-			if typeof(t) ~= "table" then
-				error(`invalid argument #1 to 'clone' (table expected, got {typeof(t)})`)
-			end
+			expectTable(t, "table", 1, "clone")
 		end
+
 		local mt = getmt(t)
 		if mt.__metatable then
 			error("invalid argument #1 to 'clone' (table has a protected metatable)")
@@ -37,11 +37,10 @@ if _G.DAL_allow_debug_library_usage then
 else
 	clone = function(t)
 		if _G.DAL_runtime_type_checking then
-			if typeof(t) ~= "table" then
-				error(`invalid argument #1 to 'clone' (table expected, got {typeof(t)})`)
-			end
+			expectTable(t, "table", 1, "clone")
 		end
-		if lockedtables[t] == false then
+
+		if lockedTables[t] == false then
 			error("invalid argument #1 to 'clone' (table has a protected metatable)")
 		end
 		-- selene: allow(manual_table_clone)
@@ -55,13 +54,12 @@ else
 end
 
 local function create<V>(count: number, value: V?): {V}
-	if _G.DAL_runtime_type_checking then
-		if not isnumber(count) then
-			error(`invalid argument #1 to 'create' (number expected, got {typeof(count)})`)
-		end
+	if _G.DAL_emulate_type_error then
+		expectNumber(count, 1, "create")
 	end
+
 	local new = {}
-	if value then
+	if value ~= nil then
 		for i = 1, count do
 			new[i] = value
 		end
@@ -71,12 +69,14 @@ end
 
 local function find(t: {}, value: any): number?
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'find' (table expected, got {typeof(t)})`)
-		elseif value == nil then
+		expectTable(t, "table", 1, "find")
+	end
+	if _G.DAL_emulate_type_error then
+		if value == nil then
 			error("missing argument #2")
 		end
 	end
+
 	for i, v in ipairs(t) do
 		if v == value then
 			return i
@@ -85,27 +85,27 @@ local function find(t: {}, value: any): number?
 	return nil
 end
 
-local function foreach(t: {}, fn: (any, any) -> ()): ()
+local function foreach<K, V>(t: { [K]: V }, fn: (K, V) -> ()): ()
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'foreach' (table expected, got {typeof(t)})`)
-		elseif type(fn) ~= "function" then
-			error(`invalid argument #2 to 'foreach' (function expected, got {typeof(fn)})`)
-		end
+		expectTable(t, "table", 1, "foreach")
 	end
-	for i, v in pairs(t) do
-		fn(i, v)
+	if _G.DAL_emulate_type_error then
+		expect(fn, "function", 2, "foreach")
+	end
+
+	for k, v in dal_pairs(t) do
+		fn(k, v)
 	end
 end
 
-local function foreachi(t: {}, fn: (number, any) -> ()): ()
+local function foreachi<V>(t: { V }, fn: (number, V) -> ()): ()
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'foreachi' (table expected, got {typeof(t)})`)
-		elseif type(fn) ~= "function" then
-			error(`invalid argument #2 to 'foreachi' (function expected, got {typeof(fn)})`)
-		end
+		expectTable(t, "table", 1, "foreachi")
 	end
+	if _G.DAL_emulate_type_error then
+		expect(fn, "function", 2, "foreachi")
+	end
+
 	for i, v in pairs(t) do
 		if type(i) == "number" then
 			fn(i, v)
@@ -137,10 +137,9 @@ end
 
 local function freeze(t: typeof(setmetatable({} :: {}, {} :: {})))
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'freeze' (table expected, got {typeof(t)})`)
-		end
+		expectTable(t, "table", 1, "freeze")
 	end
+
 	if _G.DAL_emulate_frozen_table then
 		local mt = getmetatable(t)
 		local freezeMt
@@ -174,10 +173,9 @@ end
 
 local function isfrozen(t: {}): boolean
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'isfrozen' (table expected, got {typeof(t)})`)
-		end
+		expectTable(t, "table", 1, "isfrozen")
 	end
+
 	return frozentables[t] ~= nil
 end
 
@@ -186,19 +184,17 @@ local pack = table.pack
 
 local function getn(t: {}): number
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'getn' (table expected, got {typeof(t)})`)
-		end
+		expectTable(t, "table", 1, "getn")
 	end
+
 	return pack(unpack(t)).n
 end
 
 local function maxn(t: {}): number
 	if _G.DAL_runtime_type_checking then
-		if typeof(t) ~= "table" then
-			error(`invalid argument #1 to 'maxn' (table expected, got {typeof(t)})`)
-		end
+		expectTable(t, "table", 1, "maxn")
 	end
+
 	local max = 0
 	for k, _ in pairs(t) do
 		if type(k) == "number" and k > max then
@@ -208,24 +204,22 @@ local function maxn(t: {}): number
 	return max
 end
 
-return (
-	{
-		clear = clear,
-		clone = clone,
-		create = create,
-		find = find,
-		foreach = foreach,
-		foreachi = foreachi,
-		freeze = (freeze :: any) :: typeof(table.freeze),
-		getn = getn,
-		isfrozen = isfrozen,
-		maxn = maxn,
-		concat = table.concat,
-		insert = table.insert,
-		move = table.move,
-		pack = table.pack,
-		remove = table.remove,
-		sort = table.sort,
-		unpack = table.unpack,
-	} :: any
-) :: typeof(table)
+return {
+	clear = clear :: typeof(table.clear),
+	clone = clone :: typeof(table.clone),
+	create = create :: typeof(table.create),
+	find = find :: typeof(table.find),
+	foreach = foreach :: typeof(table.foreach),
+	foreachi = foreachi :: typeof(table.foreachi),
+	freeze = (freeze :: any) :: typeof(table.freeze),
+	getn = getn :: typeof(table.getn),
+	isfrozen = isfrozen :: typeof(table.isfrozen),
+	maxn = maxn :: typeof(table.maxn),
+	concat = table.concat,
+	insert = table.insert,
+	move = table.move,
+	pack = table.pack,
+	remove = table.remove,
+	sort = table.sort,
+	unpack = table.unpack,
+} :: typeof(table)
