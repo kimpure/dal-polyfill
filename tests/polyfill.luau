@@ -398,11 +398,11 @@ return function()
 		end)
 
 		test.case("version", function()
-			-- check.equal(utils.executeWithLuau([[
+			check.equal(utils.executeWithLuau([[
 
-			-- return _VERSION
+			return _VERSION
 
-			-- ]]))
+			]]))
 		end)
 	end)
 
