@@ -660,4 +660,101 @@ return function()
 			]]))
 		end)
 	end)
+	
+	test.suite("debug", function()
+		test.case("traceback", function() 
+			check.equal(utils.execute([[
+			
+			--// 0, 1 은 테스트 안하는 이유: apple [string "luau execution"]:7 == apple [string "polyfill execution"]:7
+			return table.unpack((function()
+				local t = {}
+				for i=1, 5 do
+					t[#t + 1] = debug.traceback((function() 
+						local co = coroutine.create(function() 
+							coroutine.yield() 
+						end) 
+						coroutine.resume(co)
+						return co
+					end)(), 'apple', i + 1)
+				end
+				return t
+			end)())
+
+			--// msg 만 따로 테스트 안하는 이유: 
+--[=[			apple
+			[string "luau execution"]:9
+			[string "tests/utils.luau"]:39 function execute
+			[string "tests/polyfill.luau"]:687
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:154
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:153
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:191
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:212 function run_tests
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/frktest.luau"]:11
+			[string ".lune/test"]:10 function runTests
+			[string ".lune/test"]:17
+			== 	apple
+			[string "polyfill execution"]:9
+			[string "tests/utils.luau"]:29 function executePolyfill
+			[string "tests/utils.luau"]:40 function execute
+			[string "tests/polyfill.luau"]:687
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:154
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:153
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:191
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:212 function run_tests
+			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/frktest.luau"]:11
+			[string ".lune/test"]:10 function runTests
+			[string ".lune/test"]:17
+]=]
+			]]))
+		end)
+
+		test.case("info_thread", function() 
+			check.equal(utils.execute([[
+			
+			--// s 를 뺀 이유: [string "luau execution"] == [string "polyfill execution"]
+			return table.unpack((function()
+				local t = {}
+				for i=1, 6 do
+					t[#t + 1] = debug.info((function()
+						local co = coroutine.create(function() 
+							coroutine.yield() 
+						end) 
+						coroutine.resume(co)
+						return co
+					end)(), i - 1, 'lnf')
+				end
+				return t
+			end)())
+	
+			]]))
+		end)
+
+		test.case("info_function", function() 
+			check.equal(utils.execute([[
+			
+			--// s 를 뺀 이유: [string "luau execution"] == [string "polyfill execution"]
+			local function x(num)
+				return num * 2
+			end
+
+			return debug.info(x, 'lnf')
+	
+			]]))
+		end)
+
+		test.case("info_number", function() 
+			check.equal(utils.execute([[
+				
+			--// s 를 뺀 이유: [string "luau execution"] == [string "polyfill execution"]
+			return table.unpack((function() 
+				local t = {}
+				for i=1, 6 do
+					t[#t + 1] = debug.info(i - 1, 'lnf')
+				end
+				return t
+			end)())
+
+			]]))
+		end)
+	end)
 end

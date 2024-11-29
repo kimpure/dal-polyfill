@@ -113,9 +113,9 @@ local function foreachi<V>(t: { V }, fn: (number, V) -> ()): ()
 	end
 end
 
-local frozentables = require("./frozentables")
+local frozentables = require("./frozenTables")
 -- local iteratables = require("./iteratables")
-local privatekey = require("./privatekey")
+local privatekey = require("./privateKey")
 
 local FrozenTable = {}
 
