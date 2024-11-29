@@ -680,31 +680,7 @@ return function()
 				return t
 			end)())
 
-			--// msg 만 따로 테스트 안하는 이유: 
---[=[			apple
-			[string "luau execution"]:9
-			[string "tests/utils.luau"]:39 function execute
-			[string "tests/polyfill.luau"]:687
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:154
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:153
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:191
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:212 function run_tests
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/frktest.luau"]:11
-			[string ".lune/test"]:10 function runTests
-			[string ".lune/test"]:17
-			== 	apple
-			[string "polyfill execution"]:9
-			[string "tests/utils.luau"]:29 function executePolyfill
-			[string "tests/utils.luau"]:40 function execute
-			[string "tests/polyfill.luau"]:687
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:154
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:153
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:191
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/test.luau"]:212 function run_tests
-			[string "lune_packages/.pesde/itsfrank+frktest/0.0.2/frktest/src/frktest.luau"]:11
-			[string ".lune/test"]:10 function runTests
-			[string ".lune/test"]:17
-]=]
+			--// msg 만 따로 테스트 안하는 이유: apple [string "luau execution"]:9.... == apple [string "polyfill execution"]:9....
 			]]))
 		end)
 
