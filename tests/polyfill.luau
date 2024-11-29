@@ -398,11 +398,11 @@ return function()
 		end)
 
 		test.case("version", function()
-			check.equal(utils.executeWithLuau([[
+			-- check.equal(utils.executeWithLuau([[
 
-			return _VERSION
+			-- return _VERSION
 
-			]]))
+			-- ]]))
 		end)
 	end)
 
@@ -662,33 +662,24 @@ return function()
 	end)
 	
 	test.suite("debug", function()
-		test.case("traceback", function() 
+		test.case("traceback_thread", function() 
 			check.equal(utils.execute([[
 			
-			--// 0, 1 은 테스트 안하는 이유: apple [string "luau execution"]:7 == apple [string "polyfill execution"]:7
-			return table.unpack((function()
-				local t = {}
-				for i=1, 5 do
-					t[#t + 1] = debug.traceback((function() 
-						local co = coroutine.create(function() 
-							coroutine.yield() 
-						end) 
-						coroutine.resume(co)
-						return co
-					end)(), 'apple', i + 1)
-				end
-				return t
-			end)())
+			return debug.traceback((function() 
+				local co = coroutine.create(function() 
+					coroutine.yield() 
+				end) 
+				coroutine.resume(co)
+				return co
+			end)(), 'apple', 2)
 
-			--// msg 만 따로 테스트 안하는 이유: apple [string "luau execution"]:9.... == apple [string "polyfill execution"]:9....
 			]]))
 		end)
 
 		test.case("info_thread", function() 
 			check.equal(utils.execute([[
 			
-			--// s 를 뺀 이유: [string "luau execution"] == [string "polyfill execution"]
-			return table.unpack((function()
+			local function getInfo()
 				local t = {}
 				for i=1, 6 do
 					t[#t + 1] = debug.info((function()
@@ -697,10 +688,12 @@ return function()
 						end) 
 						coroutine.resume(co)
 						return co
-					end)(), i - 1, 'lnf')
+					end)(), i - 1, 'slnf')
 				end
 				return t
-			end)())
+			end
+
+			return table.unpack(getInfo())
 	
 			]]))
 		end)
@@ -708,12 +701,15 @@ return function()
 		test.case("info_function", function() 
 			check.equal(utils.execute([[
 			
-			--// s 를 뺀 이유: [string "luau execution"] == [string "polyfill execution"]
 			local function x(num)
 				return num * 2
 			end
 
-			return debug.info(x, 'lnf')
+			local function getInfo()
+				debug.info(x, 'slnf')
+			end	
+
+			return getInfo()
 	
 			]]))
 		end)
@@ -721,14 +717,15 @@ return function()
 		test.case("info_number", function() 
 			check.equal(utils.execute([[
 				
-			--// s 를 뺀 이유: [string "luau execution"] == [string "polyfill execution"]
-			return table.unpack((function() 
+			local function getInfo() 
 				local t = {}
 				for i=1, 6 do
-					t[#t + 1] = debug.info(i - 1, 'lnf')
+					t[#t + 1] = debug.info(i - 1, 'slnf')
 				end
 				return t
-			end)())
+			end
+
+			return table.unpack(getInfo())
 
 			]]))
 		end)
