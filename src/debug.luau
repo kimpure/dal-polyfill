@@ -14,6 +14,8 @@ local optionKeymap = {
 	['f'] = 'func',
 }
 
+local type = require'type'
+
 local table = require'table'
 local insert = table.insert
 local unpack = table.unpack
