@@ -676,6 +676,22 @@ return function()
 			]]))
 		end)
 
+		test.case("traceback_msg", function() 
+			check.equal(utils.execute([[
+			
+			local t
+			return (function() 
+				local co = coroutine.create(function() 
+				    t = debug.traceback('apple', 2)
+					coroutine.yield() 
+				end) 
+				coroutine.resume(co)
+				return t
+			end)()
+
+			]]))
+		end)
+
 		test.case("info_thread", function() 
 			check.equal(utils.execute([[
 			
