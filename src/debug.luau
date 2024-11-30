@@ -28,7 +28,7 @@ local function info<T, U>(thread: thread | number | (T) -> (U), level_or_func: n
     
     if useThread then
         if type(level_or_func) ~= "number" then
-            error("invalid argument #2 for 'getinfo' (invalid level)")
+            error("invalid argument #2 for 'info' (invalid level)")
         end
         target = level_or_func 
         options = s
@@ -38,7 +38,7 @@ local function info<T, U>(thread: thread | number | (T) -> (U), level_or_func: n
         if type(target) == "number" then
             target = target == 0 and 0 or target + 1
         elseif type(target) ~= "function" then
-            error("invalid argument #1 for 'getinfo' (invalid level)")
+            error("invalid argument #1 for 'info' (invalid level)")
         end
     end
     
@@ -48,11 +48,11 @@ local function info<T, U>(thread: thread | number | (T) -> (U), level_or_func: n
     
     local function getInfoOptionsCall(char)
         if char == "a" then
-            error "invalid argument #2 to 'getinfo' (a is unsupported option)"
+            error "invalid argument #2 to 'info' (a is unsupported option)"
         end
         local option = optionMapper[char]
         if option == nil then
-            error "invalid argument #2 to 'getinfo' (invalid option)"
+            error "invalid argument #2 to 'info' (invalid option)"
         end
         return option
     end
