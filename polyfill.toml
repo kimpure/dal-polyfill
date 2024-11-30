@@ -1,5 +1,6 @@
 globals = "src/globals.luau"
 removes = ["io", "module", "package", "dofile", "loadfile", "load"]
+lua_version = "luau"
 
 [config]
 # this setting allows type checking (usually for tables. because userdata mimics using tables)
