@@ -704,7 +704,7 @@ return function()
 						end) 
 						coroutine.resume(co)
 						return co
-					end)(), i - 1, 'slnf')
+					end)(), i - 1, 'aslnf')
 				end
 				return t
 			end
@@ -717,12 +717,12 @@ return function()
 		test.case("info_function", function() 
 			check.equal(utils.execute([[
 			
-			local function x(num)
+			local function x(num, ...)
 				return num * 2
 			end
 
 			local function getInfo()
-				debug.info(x, 'slnf')
+				debug.info(x, 'aslnf')
 			end	
 
 			return getInfo()
@@ -736,7 +736,7 @@ return function()
 			local function getInfo() 
 				local t = {}
 				for i=1, 6 do
-					t[#t + 1] = debug.info(i - 1, 'slnf')
+					t[#t + 1] = debug.info(i - 1, 'aslnf')
 				end
 				return t
 			end

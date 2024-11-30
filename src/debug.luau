@@ -5,6 +5,7 @@ local optionMapper = {
 	['l'] = 'S',
 	['n'] = 'n',
 	['f'] = 'f',
+    ['a'] = 'u'
 }
 
 local optionKeymap = {
@@ -12,6 +13,7 @@ local optionKeymap = {
 	['l'] = 'linedefined',
 	['n'] = 'name',
 	['f'] = 'func',
+    ['a'] = 'isvararg',
 }
 
 local type = require'type'
@@ -19,6 +21,7 @@ local type = require'type'
 local table = require'table'
 local insert = table.insert
 local unpack = table.unpack
+local find = table.find
 
 local string = require'string'
 local gmatch = string.gmatch
@@ -49,9 +52,6 @@ local function info<T, U>(thread: thread | number | (T) -> (U), level_or_func: n
     end
     
     local function getInfoOptionsCall(char)
-        if char == "a" then
-            error "invalid argument #2 to 'info' (a is unsupported option)"
-        end
         local option = optionMapper[char]
         if option == nil then
             error "invalid argument #2 to 'info' (invalid option)"
@@ -77,6 +77,17 @@ local function info<T, U>(thread: thread | number | (T) -> (U), level_or_func: n
 	for char in gmatch(options, ".") do
 		insert(result, info[optionKeymap[char]])
 	end
+
+    if find(result, 'isvararg') and type(target) ~= 'number' then
+        local count = 0
+        while true do
+            local name = (debug::any).getlocal(target, count + 1)
+            if not name then break end
+            count = count + 1
+        end
+        insert(result, find(result, 'isvararg') :: number - 1)
+    end
+
 	return unpack(result, 1, #options)
 end 
 
