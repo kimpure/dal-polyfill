@@ -660,4 +660,90 @@ return function()
 			]]))
 		end)
 	end)
+	
+	test.suite("debug", function()
+		test.case("traceback_thread", function() 
+			check.equal(utils.execute([[
+			
+			return debug.traceback((function() 
+				local co = coroutine.create(function() 
+					coroutine.yield() 
+				end) 
+				coroutine.resume(co)
+				return co
+			end)(), 'apple', 2)
+
+			]]))
+		end)
+
+		test.case("traceback_msg", function() 
+			check.equal(utils.execute([[
+			
+			local t
+			return (function() 
+				local co = coroutine.create(function() 
+				    t = debug.traceback('apple', 2)
+					coroutine.yield() 
+				end) 
+				coroutine.resume(co)
+				return t
+			end)()
+
+			]]))
+		end)
+
+		test.case("info_thread", function() 
+			check.equal(utils.execute([[
+			
+			local function getInfo()
+				local t = {}
+				for i=1, 6 do
+					t[#t + 1] = debug.info((function()
+						local co = coroutine.create(function() 
+							coroutine.yield() 
+						end) 
+						coroutine.resume(co)
+						return co
+					end)(), i - 1, 'slnf')
+				end
+				return t
+			end
+
+			return table.unpack(getInfo())
+	
+			]]))
+		end)
+
+		test.case("info_function", function() 
+			check.equal(utils.execute([[
+			
+			local function x(num)
+				return num * 2
+			end
+
+			local function getInfo()
+				debug.info(x, 'slnf')
+			end	
+
+			return getInfo()
+	
+			]]))
+		end)
+
+		test.case("info_number", function() 
+			check.equal(utils.execute([[
+				
+			local function getInfo() 
+				local t = {}
+				for i=1, 6 do
+					t[#t + 1] = debug.info(i - 1, 'slnf')
+				end
+				return t
+			end
+
+			return table.unpack(getInfo())
+
+			]]))
+		end)
+	end)
 end
