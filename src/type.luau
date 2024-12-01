@@ -2,10 +2,9 @@ local weakTypes = require("./weakTypes")
 local nativeTypes = require("./nativeTypes")
 
 return function(value: any): string
-	if _G.DAL_runtime_type_checking then
-		if value == nil then
-			error("missing argument #1")
-		end
+	local t = type(value)
+	if t == "nil" then
+		return t
 	end
 	local customtype = weakTypes[value]
 	if customtype then
@@ -16,5 +15,5 @@ return function(value: any): string
 	if customtype then
 		return customtype
 	end
-	return type(value)
+	return t
 end

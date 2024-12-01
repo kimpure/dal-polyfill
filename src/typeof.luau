@@ -1,11 +1,11 @@
+local originalType = type
 local type = require("./type")
 local customTypes = require("./customTypes")
 
 return function(value: any): string
-	if _G.DAL_runtime_type_checking then
-		if value == nil then
-			error("missing argument #1")
-		end
+	local t = originalType(value)
+	if t == "nil" then
+		return t
 	end
 	local mt = getmetatable(value :: any)
 	local customtype = customTypes[mt]
