@@ -10,8 +10,9 @@ local function ascendingOrder(a: any, b)
 	return a < b
 end
 
+local dal_pairs
 if _G.DAL_hash_iterator then
-	return function<K, V>(t: { [K]: V }): (({ [K]: V }, K?) -> (K?, V), { [K]: V }, nil)
+	dal_pairs = function<K, V>(t: { [K]: V }): (({ [K]: V }, K?) -> (K?, V), { [K]: V }, nil)
 		if _G.DAL_runtime_type_checking then
 			expectTable(t, "table", 1, "pairs")
 		end
@@ -52,7 +53,7 @@ if _G.DAL_hash_iterator then
 		return iterator, t, nil
 	end
 elseif _G.DAL_emulate_frozen_table or _G.DAL_runtime_type_checking then
-	return function<K, V>(t: { [K]: V })
+	dal_pairs = function<K, V>(t: { [K]: V })
 		if _G.DAL_runtime_type_checking then
 			expectTable(t, "table", 1, "pairs")
 		end
@@ -67,5 +68,7 @@ elseif _G.DAL_emulate_frozen_table or _G.DAL_runtime_type_checking then
 		return pairs(t)
 	end
 else
-	return pairs
+	dal_pairs = pairs
 end
+
+return dal_pairs

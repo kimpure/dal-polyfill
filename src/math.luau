@@ -189,8 +189,9 @@ local function sign(n: number): number
 	end
 end
 
+local dal_math
 if _G.DAL_test then
-	return {
+	dal_math = {
 		atan = atan,
 		atan2 = math.atan2 or atan2,
 		clamp = clamp,
@@ -227,7 +228,7 @@ if _G.DAL_test then
 		tan = math.tan,
 	} :: typeof(math)
 else
-	return {
+	dal_math = {
 		atan = math.atan or atan,
 		atan2 = math.atan2 or atan2,
 		clamp = math.clamp or clamp,
@@ -264,3 +265,5 @@ else
 		tan = math.tan,
 	} :: typeof(math)
 end
+
+return dal_math

@@ -29,8 +29,9 @@ pcall(function()
 	stringMt.split = split
 end)
 
+local dal_string
 if _G.DAL_test then
-	return {
+	dal_string = {
 		split = split,
 		byte = string.byte,
 		char = string.char,
@@ -50,7 +51,7 @@ if _G.DAL_test then
 		upper = string.upper,
 	} :: typeof(string)
 else
-	return {
+	dal_string = {
 		split = string.split or split,
 		byte = string.byte,
 		char = string.char,
@@ -70,3 +71,5 @@ else
 		upper = string.upper,
 	} :: typeof(string)
 end
+
+return dal_string

@@ -608,10 +608,11 @@ local function fromstring(str: string): buffer_polyfill
 	}, BufferMetatable) :: any
 end
 
+local dal_buffer
 if not _G.DAL_test and buffer then
-	return buffer :: any
+	dal_buffer = buffer :: any
 else
-	return {
+	dal_buffer = {
 		create = create,
 		len = len,
 		copy = copy,
@@ -638,3 +639,5 @@ else
 		fromstring = fromstring,
 	}
 end
+
+return dal_buffer
