@@ -410,14 +410,6 @@ if not dal_loadstring then
 	end
 end
 
-local dal_bit32 = require("./bit32")
-local dal_buffer = require("./buffer")
-local dal_debug = require("./debug")
-local dal_math = require("./math")
-local dal_os = require("./os")
-local dal_string = require("./string")
-local dal_table = require("./table")
-
 return {
 	-- globals
 	type = type :: typeof(type),
@@ -439,11 +431,11 @@ return {
 	loadstring = dal_loadstring :: typeof(loadstring),
 
 	-- libraries
-	bit32 = dal_bit32,
-	buffer = dal_buffer,
-	debug = dal_debug,
-	math = dal_math,
-	os = dal_os,
-	string = dal_string,
-	table = dal_table,
+	bit32 = require("./bit32"),
+	buffer = require("./buffer"),
+	debug = require("./debug"),
+	math = require("./math"),
+	os = require("./os"),
+	-- string = require("./string"),
+	-- table = require("./table"),
 }
