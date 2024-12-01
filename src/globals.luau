@@ -436,6 +436,6 @@ return {
 	debug = require("./debug"),
 	math = require("./math"),
 	os = require("./os"),
-	-- string = require("./string"),
-	-- table = require("./table"),
+	string = require("./string"),
+	table = require("./table"),
 }
