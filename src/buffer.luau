@@ -10,6 +10,7 @@ local isNumber = require("./isNumber")
 local expectNumber = require("./expectNumber")
 local expectTable = require("./expectTable")
 local expectString = require("./expectString")
+local bit32 = require("./bit32")
 
 local band = bit32.band
 local rshift = bit32.rshift
@@ -25,7 +26,7 @@ local huge = math.huge
 local byte = string.byte
 
 type buffer_polyfill = {
-	[typeof(privateKey)]: { number }
+	[typeof(privateKey)]: { number },
 }
 
 local chars = table.create(256)
@@ -62,7 +63,13 @@ local function len(b: buffer_polyfill)
 	return #b[privateKey]
 end
 
-local function copy(target: buffer_polyfill, targetOffset: number, source: buffer_polyfill, sourceOffset: number?, count: number?)
+local function copy(
+	target: buffer_polyfill,
+	targetOffset: number,
+	source: buffer_polyfill,
+	sourceOffset: number?,
+	count: number?
+)
 	if _G.DAL_runtime_type_checking then
 		local funcName = "copy"
 		expectTable(target, "buffer", 1, funcName)
@@ -260,7 +267,7 @@ end
 
 local function readi16(b: buffer_polyfill, offset: number)
 	if _G.DAL_runtime_type_checking then
-		local  funcName = "readi16"
+		local funcName = "readi16"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
 	end
@@ -521,8 +528,7 @@ local function readf64(b: buffer_polyfill, offset: number)
 		if mantissa == 0 then
 			return 0
 		else
-			return sign and -ldexp(mantissa / 4503599627370496, -1022)
-				or ldexp(mantissa / 4503599627370496, -1022)
+			return sign and -ldexp(mantissa / 4503599627370496, -1022) or ldexp(mantissa / 4503599627370496, -1022)
 		end
 	end
 
@@ -598,7 +604,7 @@ local function fromstring(str: string): buffer_polyfill
 		data[i] = byte(str, i, i)
 	end
 	return setmetatable({
-		[privateKey] = data
+		[privateKey] = data,
 	}, BufferMetatable) :: any
 end
 
@@ -629,6 +635,6 @@ else
 		writestring = writestring,
 		readstring = readstring,
 		tostring = tostring,
-		fromstring = fromstring
+		fromstring = fromstring,
 	}
 end

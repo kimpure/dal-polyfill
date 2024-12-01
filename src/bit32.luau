@@ -3,11 +3,55 @@ local expectNumber = require("./expectNumber")
 local LN2 = math.log(2)
 local log = math.log
 local floor = math.floor
-local band = bit32.band
-local rshift = bit32.rshift
-local lshift = bit32.lshift
-local bnot = bit32.bnot
-local bor = bit32.bor
+
+local band
+local rshift
+local lshift
+local bnot
+local bor
+if bit32 then
+	band = bit32.band
+	rshift = bit32.rshift
+	lshift = bit32.lshift
+	bnot = bit32.bnot
+	bor = bit32.bor
+else
+	-- credits to https://github.com/orpos/dal-polyfill/blob/main/src/bit32.luau
+	band = function(a, b): number
+		local result = 0
+		local bit = 1
+		while a > 0 and b > 0 do
+			if a % 2 == 1 and b % 2 == 1 then
+				result = result + bit
+			end
+			a = floor(a / 2)
+			b = floor(b / 2)
+			bit = bit * 2
+		end
+		return result
+	end
+
+	rshift = function(a: number, b: number): number
+		return floor(a / 2 ^ b)
+	end
+
+	lshift = function(a: number, b: number): number
+		return a * 2 ^ b
+	end
+
+	bnot = function(a: number): number
+		return (-1 - a) % (2 ^ 32)
+	end
+
+	bor = function(a: number, b: number): number
+		local r: number, m: number, s: number = 0, 2 ^ 31, a + b + 2 ^ 31
+		repeat
+			s, a, b = a + b + m, a % m, b % m
+			r, m = r + m * 1 % (s - a - b), m / 2
+		until m < 1
+		return r
+	end
+end
 
 local function arshift(x: number, disp: number): number
 	if _G.DAL_emulate_type_error then
@@ -27,9 +71,9 @@ local function arshift(x: number, disp: number): number
 	return z
 end
 
--- local function btest(x: number, y: number): boolean -- can be converted directly into `((x&y)&0xFFFFFFFF~=0)`?
--- 	return bit32.band(x, y) ~= 0
--- end
+local function btest(x: number, y: number): boolean -- can be converted directly into `((x&y)&0xFFFFFFFF~=0)`
+	return bit32.band(x, y) ~= 0
+end
 
 local function extract(n: number, field: number, width: number): number
 	if _G.DAL_emulate_type_error then
@@ -119,17 +163,19 @@ local function byteswap(n: number): number
 	return bor(bor(bor(lshift(n, 24), band(lshift(n, 8), 0xff0000)), band(rshift(n, 8), 0xff00)), rshift(n, 24))
 end
 
-if not _G.DAL_test and bit32 then
-	return bit32 :: any
-else
-	return {
-		arshift = arshift :: typeof(bit32.arshift),
-		extract = extract :: typeof(bit32.extract),
-		rrotate = rrotate :: typeof(bit32.rrotate),
-		lrotate = lrotate :: typeof(bit32.lrotate),
-		replace = replace :: typeof(bit32.replace),
-		countrz = countrz :: typeof(bit32.countrz),
-		countlz = countlz :: typeof(bit32.countlz),
-		byteswap = byteswap :: typeof(bit32.byteswap),
-	} -- for lua54 or something
-end
+return {
+	arshift = (bit32.arshift or arshift) :: typeof(bit32.arshift),
+	btest = (bit32.btest or btest) :: typeof(bit32.btest),
+	extract = (bit32.extract or extract) :: typeof(bit32.extract),
+	rrotate = (bit32.rrotate or rrotate) :: typeof(bit32.rrotate),
+	lrotate = (bit32.lrotate or lrotate) :: typeof(bit32.lrotate),
+	replace = (bit32.replace or replace) :: typeof(bit32.replace),
+	countrz = (bit32.countrz or countrz) :: typeof(bit32.countrz),
+	countlz = (bit32.countlz or countlz) :: typeof(bit32.countlz),
+	byteswap = (bit32.byteswap or byteswap) :: typeof(bit32.byteswap),
+	band = band,
+	rshift = rshift,
+	lshift = lshift,
+	bnot = bnot,
+	bor = bor,
+}

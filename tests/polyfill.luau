@@ -290,12 +290,6 @@ return function()
 		end)
 	end)
 
-	test.suite("debug", function()
-		test.case("info", function()
-
-		end)
-	end)
-
 	test.suite("global functions", function()
 		test.case("types", function()
 			utils.checkTableEntriesEqual(utils.execute([[
@@ -660,15 +654,15 @@ return function()
 			]]))
 		end)
 	end)
-	
+
 	test.suite("debug", function()
-		test.case("traceback_thread", function() 
+		test.case("traceback_thread", function()
 			check.equal(utils.execute([[
-			
-			return debug.traceback((function() 
-				local co = coroutine.create(function() 
-					coroutine.yield() 
-				end) 
+
+			return debug.traceback((function()
+				local co = coroutine.create(function()
+					coroutine.yield()
+				end)
 				coroutine.resume(co)
 				return co
 			end)(), 'apple', 2)
@@ -676,15 +670,15 @@ return function()
 			]]))
 		end)
 
-		test.case("traceback_msg", function() 
+		test.case("traceback_msg", function()
 			check.equal(utils.execute([[
-			
+
 			local t
-			return (function() 
-				local co = coroutine.create(function() 
-				    t = debug.traceback('apple', 2)
-					coroutine.yield() 
-				end) 
+			return (function()
+				local co = coroutine.create(function()
+					t = debug.traceback('apple', 2)
+					coroutine.yield()
+				end)
 				coroutine.resume(co)
 				return t
 			end)()
@@ -692,16 +686,16 @@ return function()
 			]]))
 		end)
 
-		test.case("info_thread", function() 
+		test.case("info_thread", function()
 			check.equal(utils.execute([[
-			
+
 			local function getInfo()
 				local t = {}
 				for i=1, 6 do
 					t[#t + 1] = debug.info((function()
-						local co = coroutine.create(function() 
-							coroutine.yield() 
-						end) 
+						local co = coroutine.create(function()
+							coroutine.yield()
+						end)
 						coroutine.resume(co)
 						return co
 					end)(), i - 1, 'slnf')
@@ -710,30 +704,30 @@ return function()
 			end
 
 			return table.unpack(getInfo())
-	
+
 			]]))
 		end)
 
-		test.case("info_function", function() 
+		test.case("info_function", function()
 			check.equal(utils.execute([[
-			
+
 			local function x(num)
 				return num * 2
 			end
 
 			local function getInfo()
 				debug.info(x, 'slnf')
-			end	
+			end
 
 			return getInfo()
-	
+
 			]]))
 		end)
 
-		test.case("info_number", function() 
+		test.case("info_number", function()
 			check.equal(utils.execute([[
-				
-			local function getInfo() 
+
+			local function getInfo()
 				local t = {}
 				for i=1, 6 do
 					t[#t + 1] = debug.info(i - 1, 'slnf')

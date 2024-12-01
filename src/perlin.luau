@@ -1,5 +1,7 @@
 -- lua port of https://github.com/luau-lang/luau/blob/master/VM/src/lmathlib.cpp
 
+local bit32 = require("./bit32")
+
 local floor = math.floor
 local band = bit32.band
 
@@ -80,8 +82,13 @@ return function(x: number, y: number?, z: number?)
 
 	local la = perlin_lerp(u, perlin_grad(p[aa + 1], xf, yf, zf), perlin_grad(p[ba + 1], xf - 1, yf, zf))
 	local lb = perlin_lerp(u, perlin_grad(p[ab + 1], xf, yf - 1, zf), perlin_grad(p[bb + 1], xf - 1, yf - 1, zf))
-	local la1 = perlin_lerp(u, perlin_grad(p[aa + 1 + 1], xf, yf, zf - 1), perlin_grad(p[ba + 1 + 1], xf - 1, yf, zf - 1))
-	local lb1 = perlin_lerp(u, perlin_grad(p[ab + 1 + 1], xf, yf - 1, zf - 1), perlin_grad(p[bb + 1 + 1], xf - 1, yf - 1, zf - 1))
+	local la1 =
+		perlin_lerp(u, perlin_grad(p[aa + 1 + 1], xf, yf, zf - 1), perlin_grad(p[ba + 1 + 1], xf - 1, yf, zf - 1))
+	local lb1 = perlin_lerp(
+		u,
+		perlin_grad(p[ab + 1 + 1], xf, yf - 1, zf - 1),
+		perlin_grad(p[bb + 1 + 1], xf - 1, yf - 1, zf - 1)
+	)
 
 	return perlin_lerp(w, perlin_lerp(v, la, lb), perlin_lerp(v, la1, lb1))
 end

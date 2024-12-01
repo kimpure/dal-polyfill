@@ -333,11 +333,11 @@ end
 
 local dal_setfenv = setfenv
 if not dal_setfenv then
-	dal_setfenv = function<T..., R...>(fnOrIndex: (T...) -> (R...) | number, env): ((T...) -> (R...))?
+	dal_setfenv = function<T..., R...>(fnOrIndex: (T...) -> R... | number, env): ((T...) -> R...)?
 		fnOrIndex = fnOrIndex or 1
 		if isNumber(fnOrIndex) then
 			local info = (debug :: any).getinfo(fnOrIndex) :: {
-				func: (T...) -> (R...),
+				func: (T...) -> R...,
 				what: string,
 			}
 			if info.what == "C" then

@@ -3,6 +3,8 @@ local expectTable = require("./expectTable")
 local expectNumber = require("./expectNumber")
 local expect = require("./expect")
 local dal_pairs = require("./pairs")
+local frozenTables = require("./frozenTables")
+local privateKey = require("./privateKey")
 
 local function clear(t: {})
 	if _G.DAL_runtime_type_checking then
@@ -53,7 +55,7 @@ else
 	end
 end
 
-local function create<V>(count: number, value: V?): {V}
+local function create<V>(count: number, value: V?): { V }
 	if _G.DAL_emulate_type_error then
 		expectNumber(count, 1, "create")
 	end
@@ -113,14 +115,10 @@ local function foreachi<V>(t: { V }, fn: (number, V) -> ()): ()
 	end
 end
 
-local frozentables = require("./frozenTables")
--- local iteratables = require("./iteratables")
-local privatekey = require("./privateKey")
-
 local FrozenTable = {}
 
 function FrozenTable.__index(self, k)
-	return self[privatekey][k]
+	return self[privateKey][k]
 end
 
 function FrozenTable.__newindex()
@@ -128,11 +126,11 @@ function FrozenTable.__newindex()
 end
 
 function FrozenTable.__tostring(self): string
-	return tostring(self[privatekey])
+	return tostring(self[privateKey])
 end
 
 function FrozenTable.__len(self): number
-	return #self[privatekey]
+	return #self[privateKey]
 end
 
 local function freeze(t: typeof(setmetatable({} :: {}, {} :: {})))
@@ -154,19 +152,19 @@ local function freeze(t: typeof(setmetatable({} :: {}, {} :: {})))
 			freezeMt = FrozenTable
 		end
 		local frozen = setmetatable({
-			[privatekey] = t,
+			[privateKey] = t,
 		}, freezeMt)
 
 		-- frozentables[frozen] = {
 		-- 	[1] = mt,
 		-- 	[2] = t :: any,
 		-- }
-		frozentables[frozen] = mt or false
+		frozenTables[frozen] = mt or false
 		-- iteratables[frozen] = t
 
 		return frozen
 	else
-		frozentables[t] = false
+		frozenTables[t] = false
 		return t
 	end
 end
@@ -176,7 +174,7 @@ local function isfrozen(t: {}): boolean
 		expectTable(t, "table", 1, "isfrozen")
 	end
 
-	return frozentables[t] ~= nil
+	return frozenTables[t] ~= nil
 end
 
 local unpack = table.unpack
