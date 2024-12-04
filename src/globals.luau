@@ -140,6 +140,7 @@ else
 	end
 end
 
+-- a SPECIAL global function for __iter
 local function __DAL_getmetatable_iter(value)
 	if _G.DAL_emulate_type_error then
 		if value == nil then
@@ -417,7 +418,7 @@ return {
 	rawget = dal_rawget :: typeof(rawget),
 	rawset = dal_rawset :: typeof(rawset),
 	next = dal_next :: typeof(next),
-	unpack = table.unpack :: typeof(unpack),
+	unpack = unpack or table.unpack :: typeof(unpack),
 	pairs = require("./pairs"),
 	ipairs = dal_ipairs :: typeof(ipairs),
 	getmetatable = dal_getmetatable :: typeof(getmetatable),
