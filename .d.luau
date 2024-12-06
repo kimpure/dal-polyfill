@@ -6,6 +6,8 @@ declare _G: {
 	DAL_emulate_newproxy: boolean,
 	DAL_test: boolean,
 	DAL_emulate_type_error: boolean,
+	DAL_luau_hash_table: boolean,
+	DAL_emulate_next: boolean
 }
 
 declare load: <A...>(chunk: string | () -> string, chunkname: string?, mode: ("bt" | "b" | "t")?, env: { [string]: any }?) -> (((A...) -> any)?, string?)
