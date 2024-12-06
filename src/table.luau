@@ -2,16 +2,16 @@ local lockedTables = require("./lockedTables")
 local expectTable = require("./expectTable")
 local expectNumber = require("./expectNumber")
 local expect = require("./expect")
-local dal_pairs = require("./pairs")
 local frozenTables = require("./frozenTables")
 local privateKey = require("./privateKey")
+local dal_next = require("./next")
 
 local function clear(t: {})
 	if _G.DAL_runtime_type_checking then
 		expectTable(t, "table", 1, "clear")
 	end
 
-	for i in pairs(t) do
+	for i in next, t do
 		t[i] = nil
 	end
 end
@@ -30,7 +30,7 @@ if _G.DAL_allow_debug_library_usage and (debug :: any).getmetatable then
 		end
 		-- selene: allow(manual_table_clone)
 		local new = {}
-		for i, v in pairs(t) do
+		for i, v in next, t do
 			new[i] = v
 		end
 		setmetatable(new, mt)
@@ -47,7 +47,7 @@ else
 		end
 		-- selene: allow(manual_table_clone)
 		local new = {}
-		for i, v in pairs(t) do
+		for i, v in next, t do
 			new[i] = v
 		end
 		setmetatable(new, getmetatable(t))
@@ -79,11 +79,13 @@ local function find(t: {}, value: any): number?
 		end
 	end
 
-	for i, v in ipairs(t) do
-		if v == value then
+	--for i, v in ipairs(t) do
+	for i = 1, #t do
+		if t[i] == value then
 			return i
 		end
 	end
+
 	return nil
 end
 
@@ -95,7 +97,7 @@ local function foreach<K, V>(t: { [K]: V }, fn: (K, V) -> ()): ()
 		expect(fn, "function", 2, "foreach")
 	end
 
-	for k, v in dal_pairs(t) do
+	for k, v in dal_next, t do
 		fn(k, v)
 	end
 end
@@ -108,10 +110,8 @@ local function foreachi<V>(t: { V }, fn: (number, V) -> ()): ()
 		expect(fn, "function", 2, "foreachi")
 	end
 
-	for i, v in pairs(t) do
-		if type(i) == "number" then
-			fn(i, v)
-		end
+	for i = 1, #t do
+		fn(i, t[i])
 	end
 end
 
@@ -143,7 +143,7 @@ local function freeze(t: typeof(setmetatable({} :: {}, {} :: {})))
 		local freezeMt
 		if mt then
 			freezeMt = clone(FrozenTable)
-			for method, f in mt do
+			for method, f in next, mt do
 				if method ~= "__newindex" then
 					freezeMt[method] = f
 				end
@@ -194,7 +194,7 @@ local function maxn(t: {}): number
 	end
 
 	local max = 0
-	for k, _ in pairs(t) do
+	for k in next, t do
 		if type(k) == "number" and k > max then
 			max = k
 		end
