@@ -29,3 +29,6 @@ Polyfill libraries for dal used transpiling luau to lua (especially Lua 5.3)
 local a = newproxy() < 2 -- errors: "attempt to compare table < number"
 -- correct error message: "attempt to compare userdata < number"
 ```
+
+## Special Thanks
+- [Dekkonot](https://github.com/Dekkonot) - For [bitbuffer](https://github.com/dekkonot/bitbuffer/) and hashing function that [calculates `a * b` mod 32](https://github.com/Dekkonot/luau-hashing/blob/main/modules/xxhash32/init.luau) for polyfill's `luauNext` implementation.
