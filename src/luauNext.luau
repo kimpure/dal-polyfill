@@ -179,14 +179,12 @@ return function<K, V>(t: {[K]: V}, key: K?): (K?, V)
 			sizenode += 1
 		end
 	end
-	--print("compare:", nodes.n, sizenode)
 	local oldnhash = nodes.n
 	local requireRehash = oldnhash ~= sizenode
 	local lsize = ceil(log(sizenode, 2))
 	local nhash = sizenode
 	sizenode = lshift(1, lsize)
 	local keyType = type(key)
-	--print("size:", sizenode)
 
 	if _G.DAL_emulate_type_error then
 		if sizearray > MAXSIZE then
@@ -199,9 +197,7 @@ return function<K, V>(t: {[K]: V}, key: K?): (K?, V)
 	end
 
 	if requireRehash then
-		--print("rehash!")
 		if oldnhash > 0 then
-			--print("clean")
 			for i, _ in next, nodes do
 				nodes[i] = nil
 			end
