@@ -9,47 +9,151 @@ local rshift
 local lshift
 local bnot
 local bor
-if bit32 then
+local bxor
+if bit32 and _G.DAL_test == false then
 	band = bit32.band
 	rshift = bit32.rshift
 	lshift = bit32.lshift
 	bnot = bit32.bnot
 	bor = bit32.bor
+	bxor = bit32.bxor
 else
 	-- credits to https://github.com/orpos/dal-polyfill/blob/main/src/bit32.luau
-	band = function(a, b): number
-		local result = 0
-		local bit = 1
-		while a > 0 and b > 0 do
-			if a % 2 == 1 and b % 2 == 1 then
-				result = result + bit
-			end
-			a = floor(a / 2)
-			b = floor(b / 2)
-			bit = bit * 2
+	band = function(...: number): number
+		local args = {...}
+		local a = args[1]
+
+		if _G.DAL_emulate_type_error then
+			expectNumber(a, 1, "band")
 		end
-		return result
+
+		for i = 2, #args do
+			local b = args[i]
+			a %= 0x100000000
+			b %= 0x100000000
+
+			if _G.DAL_emulate_type_error then
+				expectNumber(b, i, "band")
+			end
+
+			local result = 0
+			local bit = 1
+			while a > 0 and b > 0 do
+				if a % 2 == 1 and b % 2 == 1 then
+					result = result + bit
+				end
+				a = floor(a / 2)
+				b = floor(b / 2)
+				bit = bit * 2
+			end
+
+			a = result
+		end
+
+		return a
 	end
 
 	rshift = function(a: number, b: number): number
-		return floor(a / 2 ^ b)
+		if _G.DAL_emulate_type_error then
+			local funcName = "rshift"
+			expectNumber(a, 1, funcName)
+			expectNumber(b, 2, funcName)
+		end
+
+		if b < 0 then
+			return lshift(a, -b)
+		end
+		if a < 0 then
+			a %= 0x100000000
+		end
+		return floor(a / (2 ^ b)) % 0x100000000
 	end
 
 	lshift = function(a: number, b: number): number
-		return a * 2 ^ b
+		if _G.DAL_emulate_type_error then
+			local funcName = "lshift"
+			expectNumber(a, 1, funcName)
+			expectNumber(b, 2, funcName)
+		end
+
+		if b < 0 then
+			return rshift(a, -b)
+		end
+		return floor(band(a * (2 ^ b), 0xFFFFFFFF))
 	end
 
 	bnot = function(a: number): number
+		if _G.DAL_emulate_type_error then
+			expectNumber(a, 1, "bnot")
+		end
+
+		a = floor(a % 0x100000000)
 		return (-1 - a) % (2 ^ 32)
 	end
 
-	bor = function(a: number, b: number): number
-		local r: number, m: number, s: number = 0, 2 ^ 31, a + b + 2 ^ 31
-		repeat
-			s, a, b = a + b + m, a % m, b % m
-			r, m = r + m * 1 % (s - a - b), m / 2
-		until m < 1
-		return r
+	bor = function(...: number)
+		local args = {...}
+		local a = args[1]
+
+		if _G.DAL_emulate_type_error then
+			expectNumber(a, 1, "bor")
+		end
+
+		for i = 2, #args do
+			local b = args[i]
+			a = floor(a % 0x100000000)
+			b = floor(b % 0x100000000)
+
+			if _G.DAL_emulate_type_error then
+				expectNumber(b, i, "bor")
+			end
+
+			local r: number, m: number, s: number = 0, 2 ^ 31, a + b + 2 ^ 31
+			repeat
+				s, a, b = a + b + m, a % m, b % m
+				r, m = r + m * 1 % (s - a - b), m / 2
+			until m < 1
+
+			a = r
+		end
+
+		return a
+	end
+
+	bxor = function(...: number)
+		local args = {...}
+		local a = args[1]
+
+		if _G.DAL_emulate_type_error then
+			expectNumber(a, 1, "bor")
+		end
+
+		for i = 2, #args do
+			local b = args[i]
+			a = floor(a % 0x100000000)
+			b = floor(b % 0x100000000)
+
+			if _G.DAL_emulate_type_error then
+				expectNumber(b, i, "bor")
+			end
+
+			local result = 0
+			local bit = 1
+			while a > 0 or b > 0 do
+				local a_bit = a % 2
+				local b_bit = b % 2
+				if a_bit ~= b_bit then
+					result = result + bit
+				end
+				a = floor(a / 2)
+				b = floor(b / 2)
+				bit = bit * 2
+			end
+
+			a = result
+		end
+
+		return a
 	end
 end
 
@@ -72,7 +176,7 @@ local function arshift(x: number, disp: number): number
 end
 
 local function btest(x: number, y: number): boolean -- can be converted directly into `((x&y)&0xFFFFFFFF~=0)`
-	return bit32.band(x, y) ~= 0
+	return band(x, y) ~= 0
 end
 
 local function extract(n: number, field: number, width: number): number
@@ -178,4 +282,5 @@ return {
 	lshift = lshift,
 	bnot = bnot,
 	bor = bor,
+	bxor = bxor
 }
