@@ -740,4 +740,54 @@ return function()
 			]]))
 		end)
 	end)
+
+	test.suite("utf8", function()
+		test.case("offset", function()
+			check.equal(utils.execute([[
+
+			return utf8.offset('한', 0, 1)
+
+			]]))
+		end)
+
+		test.case("codepoint", function()
+			check.equal(utils.execute([[
+
+			return utf8.codepoint('뷁둙', 1, 4)
+
+			]]))
+		end)
+
+		test.case("char", function()
+			check.equal(utils.execute([[
+
+			return utf8.char(65, 5000, 67)
+
+			]]))
+		end)
+
+		test.case("len", function()
+			check.equal(utils.execute([[
+
+			return utf8.len('한글')
+
+			]]))
+		end)
+
+		test.case("codes", function()
+			check.equal(utils.execute([[
+
+			local posResult = 0
+			local codeResult = 0
+
+			for pos, code in utf8.codes("안녕하세요") do
+				posResult = posResult + pos
+				codeResult = codeResult + code
+			end
+
+			return posResult, codeResult
+
+			]]))
+		end)
+	end)
 end

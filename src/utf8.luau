@@ -12,11 +12,12 @@ local sub = string.sub
 
 local math = require './math'
 local abs = math.abs
+local floor = math.floor
 
 local table = require './table'
 local unpack = table.unpack
 
-local function encodeCharByte(bytes: { [number]: number })
+local function bytesToCodePoint(bytes: { [number]: number }): number
     local codePoint
 
     if #bytes == 1 then
@@ -44,7 +45,7 @@ local function encodeCharByte(bytes: { [number]: number })
     return codePoint
 end
 
-local function getUtf8Code(bytes: { [number]: number }): number
+local function bytesToUniCode(bytes: { [number]: number }): number
     --// 1byte char
     if bytes[1] < 0x80 then
         return bytes[1]
@@ -80,12 +81,10 @@ local function getUtf8Code(bytes: { [number]: number }): number
     return error('Incorrect utf8Encode value')
 end
 
-local function utf8Encode(char: string): { [number]: number }
-    local codePoint = encodeCharByte{byte(char, 1, -1)}
-
+local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
     --// 1byte char
     if codePoint < 0x80 then
-        return { codePoint }
+        return { codePoint }, 1
     end
 
     --// 2byte char
@@ -93,7 +92,7 @@ local function utf8Encode(char: string): { [number]: number }
         return {
             bor(0xC0, rshift(codePoint, 6)),
             bor(0x80, band(codePoint, 0x3F)),
-        }
+        }, 2
     end
 
     --// 3byte char
@@ -102,7 +101,7 @@ local function utf8Encode(char: string): { [number]: number }
             bor(0xE0, rshift(codePoint, 12)),
             bor(0x80, band(rshift(codePoint, 6), 0x3F)),
             bor(0x80, band(codePoint, 0x3F)),
-        }
+        }, 3
     end
 
     --// 4byte char
@@ -112,45 +111,51 @@ local function utf8Encode(char: string): { [number]: number }
             bor(0x80, band(rshift(codePoint, 12), 0x3F)),
             bor(0x80, band(rshift(codePoint, 6), 0x3F)),
             bor(0x80, band(codePoint, 0x3F))
-        }
+        },4 
     end
 
     return error('utf8 max byte is 4')
 end
 
-local function utf8Decode(bytes: { [number]: number }): string
-    local code = getUtf8Code(bytes)
+local function utf8Encode(char: string): { [number]: number }
+    local codePoint = bytesToUniCode{byte(char, 1, -1)}
+
+    return uniCodeToBytes(codePoint)
+end
+
+local function utf8Decode(bytes: { [number]: number }): (string, number)
+    local code = bytesToCodePoint(bytes)
 
     --// 1byte char
     if bytes[1] < 0x80 then
-        return char(code)
+        return char(code), 1
     end
 
     --// 2byte char
     if band(bytes[1], 0xE0) == 0xC0 then
         return char(
-            0xC0 + math.floor(code / 0x40),
+            0xC0 + floor(code / 0x40),
             0x80 + (code % 0x40)
-        ) 
+        ), 2
     end
 
     --// 3byte char
     if band(bytes[1], 0xF0) == 0xE0 then
         return char(
-            0xE0 + math.floor(code / 0x1000),
-            0x80 + (math.floor(code / 0x40) % 0x40),
+            0xE0 + floor(code / 0x1000),
+            0x80 + (floor(code / 0x40) % 0x40),
             0x80 + (code % 0x40)
-        )
+        ), 3
     end
 
     --// 4byte char
     if band(bytes[1], 0xF8) == 0xF0 then
         return char(
-            0xF0 + math.floor(code / 0x40000),
-            0x80 + (math.floor(code / 0x1000) % 0x40),
-            0x80 + (math.floor(code / 0x40) % 0x40),
+            0xF0 + floor(code / 0x40000),
+            0x80 + (floor(code / 0x1000) % 0x40),
+            0x80 + (floor(code / 0x40) % 0x40),
             0x80 + (code % 0x40)
-        )
+        ), 4
     end
 
     return error('Incorrect utf8Encode value')
@@ -164,7 +169,7 @@ end
 local function utf8Char(...: number)
     local result = ''
     for k, v in { ... } do
-        result ..= utf8Decode(utf8Encode(char(v))) 
+        result ..= utf8Decode(uniCodeToBytes(v :: number) :: any) 
     end
     return result
 end
@@ -211,16 +216,80 @@ end
 -- print(utf8.offset('한', 0, 1))
 -- print(utf8Offset('한', 0, 1))
 
-local function utf8Codepoint(s: string, i: number, j: number?)
-    j = j or i
+local function utf8Codepoint(str: string, i: number?, j: number?): ...number
+    local i = i or 1
+    local j = j or i
     local result = {}
-    while i <= j::number do
-        result[#result + 1] = getUtf8Code(utf8Encode(sub(s, i, i)))
-        i += 1
-    end
+    local currentPos = 1
+    local currentChar = 1
     
+    while currentPos <= #str do
+        local codePoint, length = uniCodeToBytes(bytesToUniCode{string.sub(str, currentPos):byte(1, -1)})
+
+        if currentChar >= i and currentChar <= j then
+            result[#result + 1] = bytesToCodePoint(codePoint)
+        end
+
+        currentPos = currentPos + length
+        currentChar = currentChar + 1
+    end
+
     return unpack(result)
 end
 
-print(utf8.codepoint('한글', 1, 2))
-print(utf8Codepoint('한글', 1, 2))
+--// utf8 codepoint test
+-- print(utf8.codepoint('뷁둙', 1, 4))
+-- print(utf8Codepoint('뷁뚥', 1, 4))
+
+local function utf8Len(str: string, i: number?, j: number?): ...number
+    local i = i or 1
+    local j = j or i
+    local result = 1
+    local currentPos = 1
+    local currentChar = 1
+    
+    while currentPos <= #str do
+        local _, length = uniCodeToBytes(bytesToUniCode{sub(str, currentPos):byte(1, -1)})
+
+        if currentChar >= i and currentChar <= j then
+            result += 1
+        end
+
+        currentPos = currentPos + length
+        currentChar = currentChar + 1
+    end
+
+    return result
+end
+
+--// utf8 len test
+-- print(utf8.len('한글'))
+-- print(utf8Len('한글'))
+
+local function utf8Codes(str: string): () -> (number, number)
+    local currentPos = 1
+    
+    return function()
+        if currentPos <= #str then
+            local codePoint, length = uniCodeToBytes(bytesToUniCode{string.sub(str, currentPos):byte(1, -1)})
+            currentPos = currentPos + length
+            return currentPos - 1, bytesToCodePoint(codePoint)
+        end
+    end
+end
+
+--// utf8 Codes test
+-- for pos, code in utf8.codes('안녕하세요') do
+--     print(pos, code)
+-- end
+-- for pos, code in utf8Codes('안녕하세요') do
+--     print(pos, code)
+-- end
+
+return {
+    offset = utf8Offset :: typeof(utf8.offset),
+    codepoint = utf8Codepoint :: typeof(utf8.codepoint),
+    char = utf8Char :: typeof(utf8.char),
+    len = utf8Len :: typeof(utf8.len),
+    codes = utf8Codes,
+}
