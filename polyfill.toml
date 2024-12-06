@@ -19,5 +19,5 @@ emulate_newproxy = true # emulates userdata's behavior
 emulate_type_error = true # emulates luau's type error and messages too
 
 # next
-DAL_emulate_next = true
-DAL_luau_hash_table = true
+emulate_next = true
+luau_hash_table = true
