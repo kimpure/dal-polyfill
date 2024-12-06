@@ -10,6 +10,7 @@ local typeof = require("./typeof")
 local type = require("./type")
 local isString = require("./isString")
 local expectTable = require("./expectTable")
+local dal_next = require("./next")
 
 local function dal_rawget(t: {}, k: any): any
 	if _G.DAL_runtime_type_checking then
@@ -46,15 +47,7 @@ local function dal_rawset(t: {}, k: any, v: any): ()
 	end
 end
 
-local dal_next: typeof(next)
-if _G.DAL_runtime_type_checking then
-	dal_next = function<K, V>(t: { [K]: V }, i: K?): (K?, V)
-		expectTable(t, "table", 1, "next")
-		return next(t, i)
-	end
-else
-	dal_next = next
-end
+
 
 local dal_ipairs: typeof(ipairs)
 if _G.DAL_emulate_frozen_table or _G.DAL_runtime_type_checking then
@@ -287,7 +280,7 @@ if _G.DAL_emulate_newproxy then
 		if mt then
 			-- selene: allow(manual_table_clone)
 			local proxyMt = {}
-			for i, v in pairs(userdata) do
+			for i, v in next, userdata do
 				proxyMt[i] = v
 			end
 			setmetatable(newud, proxyMt)
@@ -418,8 +411,10 @@ return {
 	rawget = dal_rawget :: typeof(rawget),
 	rawset = dal_rawset :: typeof(rawset),
 	next = dal_next :: typeof(next),
-	unpack = unpack or table.unpack :: typeof(unpack),
-	pairs = require("./pairs"),
+	unpack = (unpack or table.unpack) :: typeof(unpack),
+	pairs = function(tbl)
+		return dal_next, tbl, nil
+	end :: typeof(pairs),
 	ipairs = dal_ipairs :: typeof(ipairs),
 	getmetatable = dal_getmetatable :: typeof(getmetatable),
 	__DAL_getmetatable_iter = __DAL_getmetatable_iter :: typeof(getmetatable),
