@@ -29,6 +29,9 @@ Polyfill libraries for dal used transpiling luau to lua (especially Lua 5.3)
 local a = newproxy() < 2 -- errors: "attempt to compare table < number"
 -- correct error message: "attempt to compare userdata < number"
 ```
+- Please do not depend on hash table's orders. while the polyfill is trying to use/imitate `Luau`'s hash table implementations, it might still have some critical edge cases with orders(especially with number hashing and pointer hashing. the order is not guaranteed as `Luau`'s one)
 
-## Special Thanks
-- [Dekkonot](https://github.com/Dekkonot) - For [bitbuffer](https://github.com/dekkonot/bitbuffer/) and hashing function that [calculates `a * b` mod 32](https://github.com/Dekkonot/luau-hashing/blob/main/modules/xxhash32/init.luau) for polyfill's `luauNext` implementation.
+### Special Thanks
+- [Luau](https://github.com/luau-lang/luau) - Some implementations of the polyfill were inspired/ported from original `Luau`'s source code(especially [hash tables](https://github.com/luau-lang/luau/blob/master/VM/src/ltable.cpp))
+- [Dekkonot](https://github.com/Dekkonot) - For [bitbuffer](https://github.com/dekkonot/bitbuffer/) and hashing function that [calculates `a * b` mod 32](https://github.com/Dekkonot/luau-hashing/blob/main/modules/xxhash32/init.luau) for polyfill's [luauNext](src/luauNext.luau) implementation.
+- Contributors of [kaledis](https://github.com/orpos/kaledis) - For bugs/issues finding/solving(especially `bit32` implementations for `Lua 5.1`) and battle testing in their [cool project](https://github.com/orpos/kaledis).
