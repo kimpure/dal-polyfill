@@ -23,6 +23,9 @@ Polyfill libraries for dal used transpiling luau to lua (especially Lua 5.3)
 - [x] `debug`
 - [x] `bit32`
 
+### TO-DOs
+- [ ] Benchmarks `next` polyfill functions (between `luauNext` and `djb2Next`)
+
 ### Limitations
 - Please do not depend on error messages. since we can't compare table and number(primitive types), polyfill's custom types such as `userdata` type will be shown as `table` when comparing numbers like this example code.
 ```luau
