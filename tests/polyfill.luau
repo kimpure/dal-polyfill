@@ -5,6 +5,61 @@ local utils = require("./utils")
 
 return function()
 	test.suite("bit32", function()
+		test.case("bitwise operations", function()
+			check.table.equal(utils.execute([[
+			return {
+				bit32.band(1, 3, 7),
+				bit32.band(-1, -3, -7),
+				bit32.band(0.1, 0.3, 0.7)
+			}
+			]]))
+
+			check.table.equal(utils.execute([[
+			return {
+				bit32.bor(1, 2, 4),
+				bit32.bor(0xF0, 0x0F),
+				bit32.bor(-1, -2, -4),
+				bit32.bor(0.1, 0.2, 0.4)
+			}
+			]]))
+
+			check.table.equal(utils.execute([[
+			return {
+				bit32.bxor(1, 2, 3),
+				bit32.bxor(0xFF, 0xAA),
+				bit32.bxor(-1, -2, -3),
+				bit32.bxor(0.1, 0.2, 0.3)
+			}
+			]]))
+
+			check.table.equal(utils.execute([[
+			return {
+				bit32.lshift(1, 3),
+				bit32.lshift(0x01, 8),
+				bit32.lshift(-1, -3),
+				bit32.lshift(0.1, 0.3)
+			}
+			]]))
+
+			check.table.equal(utils.execute([[
+			return {
+				bit32.rshift(16, 2),
+				bit32.rshift(0x100, 8),
+				bit32.rshift(-16, -2),
+				bit32.rshift(0.16, 0.2)
+			}
+			]]))
+
+			check.table.equal(utils.execute([[
+			return {
+				bit32.bnot(0),
+				bit32.bnot(0xFFFFFFFF),
+				bit32.bnot(-5),
+				bit32.bnot(0.5)
+			}
+			]]))
+		end)
+
 		test.case("arshift", function()
 			check.equal(utils.execute([[
 
@@ -98,7 +153,7 @@ return function()
 
 	test.suite("buffer", function()
 		test.case("integers", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			local offset = 0
 			local b = buffer.create(14)
@@ -152,7 +207,7 @@ return function()
 		end)
 
 		test.case("floats", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			-- writing
 			local offset = 0
@@ -204,7 +259,7 @@ return function()
 		end)
 
 		test.case("strings", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			-- writing
 			local offset = 0
@@ -292,7 +347,7 @@ return function()
 
 	test.suite("global functions", function()
 		test.case("types", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			local types = {}
 			local b = buffer.create(1)
@@ -337,13 +392,13 @@ return function()
 		end)
 
 		test.case("calling next with invalid table", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return {pcall(next, newproxy())}
 			]]))
 		end)
 
 		test.case("emulating newproxy/userdata", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return {
 				{pcall(function()
 					newproxy().key = true
@@ -362,7 +417,7 @@ return function()
 		end)
 
 		test.case("iterators", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			local t = {}
 			local hashTable = {
@@ -472,21 +527,21 @@ return function()
 		end)
 
 		test.case("frexp", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return { math.frexp(1.234) }
 			]]))
 
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return { math.frexp(33) }
 			]]))
 		end)
 
 		test.case("ldexp", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return { math.ldexp(1.234, 1.234) }
 			]]))
 
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return { math.ldexp(33, 12) }
 			]]))
 		end)
@@ -546,13 +601,13 @@ return function()
 
 	test.suite("string", function()
 		test.case("split method", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return ("a,bc,def"):split(",")
 			]]))
 		end)
 
 		test.case("split", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 			return {
 				unpack(string.split("apple;banana", ";")),
 				unpack(string.split(";apple;banana;", ";")),
@@ -576,7 +631,7 @@ return function()
 		end)
 
 		test.case("clone", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			local checks = {}
 
@@ -612,7 +667,7 @@ return function()
 		end)
 
 		test.case("foreach", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			local sum = 0
 			table.foreach({ a = 1, b = 2, c = 3, d = 4 }, function(k, v)
@@ -634,17 +689,19 @@ return function()
 		test.case("freeze", function()
 			check.equal(utils.execute([[
 
-			local readonly = table.freeze({})
+			local readonly = table.freeze({
+				key = "oldValue"
+			})
 
 			return pcall(function()
-				readonly.key = "value"
+				readonly.key = "newValue"
 			end)
 
 			]]))
 		end)
 
 		test.case("getn maxn", function()
-			utils.checkTableEntriesEqual(utils.execute([[
+			check.table.equal(utils.execute([[
 
 			return {
 				table.getn({1, 2, 3, 4}),

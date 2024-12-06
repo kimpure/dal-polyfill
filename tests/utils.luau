@@ -1,7 +1,5 @@
 local utils = {}
 local luau = require("@lune/luau")
-local frktest = require("@frktest/")
-local check = frktest.assert.check
 local fs = require("@lune/fs")
 local serde = require("@lune/serde")
 local process = require("@lune/process")
@@ -51,21 +49,6 @@ function utils.executeWithLuau(code: string): (string, string)
 		return luauResult.stdout:sub(1, -3), utils.executePolyfill(code)
 	else
 		error(`Luau failure:\nerr: {luauResult.stderr}\nstdout: {luauResult.stdout}`)
-	end
-end
-
-function utils.checkTableEntriesEqual(t0: { any }, t1: { any })
-	for i, v in t0 do
-		local obj = t1[i]
-		if type(v) == "table" then
-			if type(obj) == "table" then
-				utils.checkTableEntriesEqual(v, obj)
-			else
-				error("The comparison object is not a table")
-			end
-		else
-			check.equal(v, obj)
-		end
 	end
 end
 
