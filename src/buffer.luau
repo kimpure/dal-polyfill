@@ -1,7 +1,6 @@
 -- Some implementations are inspired by https://github.com/dekkonot/bitbuffer/
 
 local privateKey = require("./privateKey")
-local table = require("./table")
 local math = require("./math")
 local string = require("./string")
 local nativeTypes = require("./nativeTypes")
@@ -24,15 +23,16 @@ local floor = math.floor
 local ldexp = math.ldexp
 local huge = math.huge
 local byte = string.byte
+local char = string.char
 
 type buffer_polyfill = {
 	[typeof(privateKey)]: { number },
 }
 
-local chars = table.create(256)
+local chars = {}
 do
 	for i = 0, 255 do
-		chars[i + 1] = string.char(i)
+		chars[i + 1] = char(i)
 	end
 end
 
@@ -49,7 +49,10 @@ local function create(size: number): buffer_polyfill
 		expectNumber(size, 1, "create")
 	end
 
-	local data = table.create(size, 0)
+	local data = {}
+	for i = 1, size do
+		data[i] = 0
+	end
 	return setmetatable({
 		[privateKey] = data,
 	}, BufferMetatable) :: any
@@ -640,4 +643,4 @@ else
 	}
 end
 
-return dal_buffer
+return dal_buffer :: typeof(buffer)
