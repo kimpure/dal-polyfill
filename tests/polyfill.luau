@@ -453,6 +453,25 @@ return function()
 
 			]]))
 		end)
+
+		test.case("newproxy with metatable", function()
+			check.table.equal(utils.execute([[
+
+			local ud = newproxy(true)
+			local mt = getmetatable(ud)
+
+			mt.__tostring = function()
+				return "hellooo"
+			end
+
+			mt.__len = function()
+				return 1000
+			end
+
+			return {tostring(ud), #ud}
+
+			]]))
+		end)
 	end)
 
 	test.suite("math", function()
