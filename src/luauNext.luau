@@ -21,6 +21,7 @@ local band = bit32.band
 
 local MAXBITS = 26
 local MAXSIZE = lshift(1, MAXBITS)
+local LN2 = math.log(2)
 
 type LuaNode_key_val_next = { any }
 
@@ -181,9 +182,9 @@ return function<K, V>(t: {[K]: V}, key: K?): (K?, V)
 	end
 	local oldnhash = nodes.n
 	local requireRehash = oldnhash ~= sizenode
-	local lsize = ceil(log(sizenode, 2))
+	local lsize = ceil(log(sizenode) / LN2)
 	local nhash = sizenode
-	sizenode = lshift(1, lsize)
+	sizenode = sizenode < 1 and 1 or lshift(1, lsize)
 	local keyType = type(key)
 
 	if _G.DAL_emulate_type_error then
