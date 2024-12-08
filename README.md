@@ -33,6 +33,8 @@ local a = newproxy() < 2 -- errors: "attempt to compare table < number"
 -- correct error message: "attempt to compare userdata < number"
 ```
 - Please do not depend on hash table's orders. while the polyfill is trying to use/imitate `Luau`'s hash table implementations, it might still have some critical edge cases with orders(especially with number hashing and pointer hashing. the order is not guaranteed as `Luau`'s one)
+- `Lua 5.3` has integers so there may be slightly different behavior.
+- There may still be differences from `Luau` due to differences in `Lua` version and environment.
 
 ### Special Thanks
 - [Luau](https://github.com/luau-lang/luau) - Some implementations of the polyfill were inspired/ported from original `Luau`'s source code(especially [hash tables](https://github.com/luau-lang/luau/blob/master/VM/src/ltable.cpp))
