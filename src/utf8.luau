@@ -117,12 +117,6 @@ local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
     return error('utf8 max byte is 4')
 end
 
-local function utf8Encode(char: string): { [number]: number }
-    local codePoint = bytesToUniCode{byte(char, 1, -1)}
-
-    return uniCodeToBytes(codePoint)
-end
-
 local function utf8Decode(bytes: { [number]: number }): (string, number)
     local code = bytesToCodePoint(bytes)
 
