@@ -96,11 +96,36 @@ local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
 	return error("utf8 max byte is 4")
 end
 
--- local function utf8Encode(char: string): { [number]: number }
--- 	local codePoint = bytesToUniCode({ byte(char, 1, -1) })
+local function utf8Encode(char: string): { [number]: number }
+	local codePoint = bytesToUniCode({ byte(char, 1, -1) })
 
--- 	return uniCodeToBytes(codePoint)
--- end
+	return uniCodeToBytes(codePoint)
+end
+
+local function codePointUtf8Decode(codePoint: number): (string, number)
+	if codePoint < 0x80 then
+		return char(codePoint), 1
+	end
+
+	if codePoint < 0x800 then
+		return char(0xC0 + floor(codePoint / 0x40), 0x80 + (codePoint % 0x40)), 2
+	end
+
+	if codePoint < 0x10000 then
+		return char(0xE0 + floor(codePoint / 0x1000), 0x80 + (floor(codePoint / 0x40) % 0x40), 0x80 + (codePoint % 0x40)), 3
+	end
+
+	if codePoint < 0x110000 then
+		return char(
+			0xF0 + floor(codePoint / 0x40000),
+			0x80 + (floor(codePoint / 0x1000) % 0x40),
+			0x80 + (floor(codePoint / 0x40) % 0x40),
+			0x80 + (codePoint % 0x40)
+		), 4
+	end
+
+	return error("Incorrect utf8Encode value")
+end
 
 local function utf8Decode(bytes: { [number]: number }): (string, number)
 	local code = bytesToCodePoint(bytes)
@@ -234,44 +259,58 @@ end
 --// utf8 len test
 -- print(utf8.len('한글'))
 -- print(utf8Len('한글'))
-
-local function iterAux(str: string): { [number]: { [number]: number } }
-	str = tostring(str)
-	local result = {}
-	local currentPos = 1
-	local index = 1
-
-	while currentPos <= #str do
-		local codePoint, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, currentPos), 1, -1) })
-		result[index] = { currentPos, bytesToCodePoint(codePoint) }
-		currentPos = currentPos + length
-		index = index + 1
+local function iscont(char: string | number): boolean
+	if band(type(char) == 'string' and byte(char) or char :: number, 0xE0) == 0xC0 then
+		return true
 	end
-
-	return result
+	
+	return false
 end
 
-local function utf8Codes(str: string): any
-	local auxResult = iterAux(str)
-	local index = 0
-	return function(): any
-		index = index + 1
-		local t = auxResult[index]
-		if t then
-			return t[1], t[2]
+local function iter_aux(str, n: number): (number?, string?)
+	local len = #str
+	local s = byte(sub(str, n))
+	n -= 1
+	if n < 0 then
+		n = 0
+	elseif n < len then
+	  	n += 1
+	  	while iscont(s + n) do
+			n += 1
+	  	end
+	else
+	  	local code, next = codePointUtf8Decode(s + n)
+	  	if next == nil or iscont(next) then
+			error('this is error bro~')
+	  	end
+	  	return n + 1, code
+	end
+
+	return
+end
+
+local function utf8Codes(str: string)
+	return function(str: string, index: number): (number?, number?)
+		if index >= #str then
+			return
 		end
-		return 
+		local num, str = iter_aux(str, index)
+		if str then
+			return num, bytesToUniCode(utf8Encode(str))
+		else
+			return
+		end
 	end, str, 0
 end
 
 --// utf8 Codes test
--- for pos, code in utf8.codes('안녕하세요') do
---     print(pos, code)
--- end
--- print'-----'
--- for pos, code in utf8Codes('안녕하세요') do
---     print(pos, code)
--- end
+for pos, code in utf8.codes('안녕하세요') do
+    print(pos, code)
+end
+print'-----'
+for pos, code in utf8Codes('안녕하세요') do
+    print(pos, code)
+end
 
 return {
 	offset = utf8Offset :: typeof(utf8.offset),
