@@ -9,7 +9,6 @@ Polyfill libraries for dalbit used transpiling luau to lua (especially Lua 5.3)
 #### Globals
 - [x] `typeof`
 - [x] `unpack`
-- [x] `pairsWithHash` (uses `djb2` hashing internally which isn't equivalent to Luau's)
 - [x] `newproxy`
 - [x] `gcinfo`
 - More details [here](libs/globals.luau)
@@ -22,6 +21,7 @@ Polyfill libraries for dalbit used transpiling luau to lua (especially Lua 5.3)
 - [x] `table`
 - [x] `debug`
 - [x] `bit32`
+- [ ] `utf8`
 
 ### TO-DOs
 - [ ] Benchmarks `next` polyfill functions (between `luauNext` and `djb2Next`)
