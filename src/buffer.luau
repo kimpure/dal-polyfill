@@ -45,7 +45,7 @@ end
 nativeTypes[BufferMetatable] = "buffer"
 
 local function create(size: number): buffer_polyfill
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(size, 1, "create")
 	end
 
@@ -59,7 +59,7 @@ local function create(size: number): buffer_polyfill
 end
 
 local function len(b: buffer_polyfill)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(b, "buffer", 1, "len")
 	end
 
@@ -73,12 +73,12 @@ local function copy(
 	sourceOffset: number?,
 	count: number?
 )
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "copy"
 		expectTable(target, "buffer", 1, funcName)
 		expectTable(source, "buffer", 3, funcName)
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "copy"
 		expectNumber(targetOffset, 2, funcName)
 		if sourceOffset ~= nil and not isNumber(sourceOffset) then
@@ -100,10 +100,10 @@ local function copy(
 end
 
 local function fill(b: buffer_polyfill, offset: number, value: number, count: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(b, "buffer", 1, "fill")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "fill"
 		expectNumber(offset, 2, funcName)
 		expectNumber(value, 3, funcName)
@@ -122,10 +122,10 @@ end
 -- unsigned integers
 
 local function writeu8(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(b, "buffer", 1, "writeu8")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "writeu8"
 		expectNumber(offset, 2, funcName)
 		expectNumber(offset, 3, funcName)
@@ -135,7 +135,7 @@ local function writeu8(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function writeu16(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writeu16"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -148,7 +148,7 @@ local function writeu16(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function writeu32(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writeu32"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -163,7 +163,7 @@ local function writeu32(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function readu8(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readu8"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -173,7 +173,7 @@ local function readu8(b: buffer_polyfill, offset: number)
 end
 
 local function readu16(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readu16"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -184,7 +184,7 @@ local function readu16(b: buffer_polyfill, offset: number)
 end
 
 local function readu32(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readu32"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -200,7 +200,7 @@ end
 -- signed integers
 
 local function writei8(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writei8"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -215,7 +215,7 @@ local function writei8(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function writei16(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writei16"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -232,7 +232,7 @@ local function writei16(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function writei32(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writei32"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -251,7 +251,7 @@ local function writei32(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function readi8(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readi8"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -269,7 +269,7 @@ local function readi8(b: buffer_polyfill, offset: number)
 end
 
 local function readi16(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readi16"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -288,7 +288,7 @@ local function readi16(b: buffer_polyfill, offset: number)
 end
 
 local function readi32(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readi32"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -312,7 +312,7 @@ end
 -- float
 
 local function writef32(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writef32"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -375,7 +375,7 @@ local function writef32(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function writef64(b: buffer_polyfill, offset: number, value: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writef64"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -464,7 +464,7 @@ local function writef64(b: buffer_polyfill, offset: number, value: number)
 end
 
 local function readf32(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readf32"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -499,7 +499,7 @@ local function readf32(b: buffer_polyfill, offset: number)
 end
 
 local function readf64(b: buffer_polyfill, offset: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readf64"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -543,7 +543,7 @@ end
 -- string
 
 local function writestring(b: buffer_polyfill, offset: number, value: string, count: number?)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "writestring"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -560,7 +560,7 @@ local function writestring(b: buffer_polyfill, offset: number, value: string, co
 end
 
 local function readstring(b: buffer_polyfill, offset: number, count: number)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "readstring"
 		expectTable(b, "buffer", 1, funcName)
 		expectNumber(offset, 2, funcName)
@@ -579,7 +579,7 @@ end
 -- serdes
 
 local function tostring(b: buffer_polyfill): string
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(b, "buffer", 1, "tostring")
 	end
 
@@ -595,7 +595,7 @@ local function tostring(b: buffer_polyfill): string
 end
 
 local function fromstring(str: string): buffer_polyfill
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectString(str, 1, "fromstring")
 	end
 
@@ -611,11 +611,11 @@ local function fromstring(str: string): buffer_polyfill
 	}, BufferMetatable) :: any
 end
 
-local dal_buffer
-if not _G.DAL_test and buffer then
-	dal_buffer = buffer :: any
+local dalbit_buffer
+if not _G.DALBIT_test and buffer then
+	dalbit_buffer = buffer :: any
 else
-	dal_buffer = {
+	dalbit_buffer = {
 		create = create,
 		len = len,
 		copy = copy,
@@ -643,4 +643,4 @@ else
 	}
 end
 
-return dal_buffer :: typeof(buffer)
+return dalbit_buffer :: typeof(buffer)

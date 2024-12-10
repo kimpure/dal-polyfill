@@ -2,8 +2,8 @@
 [한국어](README_kr.md) 👈
 # English
 
-## dal-polyfill
-Polyfill libraries for dal used transpiling luau to lua (especially Lua 5.3)
+## dalbit-polyfill
+Polyfill libraries for dalbit used transpiling luau to lua (especially Lua 5.3)
 
 ### Implementations
 #### Globals

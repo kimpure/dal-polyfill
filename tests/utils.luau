@@ -12,9 +12,9 @@ end
 
 local polyfill: { config: { [string]: boolean } } = serde.decode("toml", fs.readFile("polyfill.toml"))
 for k, v in polyfill.config do
-	_G["DAL_" .. k] = v
+	_G["DALBIT_" .. k] = v
 end
-_G.DAL_test = true
+_G.DALBIT_test = true
 local globals = require("../src/globals")
 ;(globals :: any).pcall = pcallWithoutTrace
 ;(globals :: any)._G = _G

@@ -1,7 +1,7 @@
 local typeof = require("./typeof")
 
 --[=[
-    Recommended to type check the tables due to custom types such as `buffer` from dal polyfill.
+    Recommended to type check the tables due to custom types such as `buffer` from dalbit polyfill.
 
 	Expects a table/custom data type(ex. `buffer`, `Instance`) argument that cannot be a `nil`.
 

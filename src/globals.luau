@@ -10,13 +10,13 @@ local typeof = require("./typeof")
 local type = require("./type")
 local isString = require("./isString")
 local expectTable = require("./expectTable")
-local dal_next = require("./next")
+local dalbit_next = require("./next")
 
-local function dal_rawget(t: {}, k: any): any
-	if _G.DAL_runtime_type_checking then
+local function dalbit_rawget(t: {}, k: any): any
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "rawget")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		if k == nil then
 			error("missing argument #2")
 		end
@@ -28,11 +28,11 @@ local function dal_rawget(t: {}, k: any): any
 	return rawget(t, k)
 end
 
-local function dal_rawset(t: {}, k: any, v: any): ()
-	if _G.DAL_runtime_type_checking then
+local function dalbit_rawset(t: {}, k: any, v: any): ()
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "rawset")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		if k == nil then
 			error("missing argument #2")
 		elseif v == nil then
@@ -49,14 +49,14 @@ end
 
 
 
-local dal_ipairs: typeof(ipairs)
-if _G.DAL_emulate_frozen_table or _G.DAL_runtime_type_checking then
-	dal_ipairs = function<V>(t: { V }): (({ V }, number) -> (number?, V), { V }, number)
-		if _G.DAL_runtime_type_checking then
+local dalbit_ipairs: typeof(ipairs)
+if _G.DALBIT_emulate_frozen_table or _G.DALBIT_runtime_type_checking then
+	dalbit_ipairs = function<V>(t: { V }): (({ V }, number) -> (number?, V), { V }, number)
+		if _G.DALBIT_runtime_type_checking then
 			expectTable(t, "table", 1, "ipairs")
 		end
 
-		if _G.DAL_emulate_frozen_table then
+		if _G.DALBIT_emulate_frozen_table then
 			local frozen = frozenTables[t]
 			if frozen then
 				t = frozen[privateKey]
@@ -66,14 +66,14 @@ if _G.DAL_emulate_frozen_table or _G.DAL_runtime_type_checking then
 		return ipairs(t)
 	end
 else
-	dal_ipairs = ipairs
+	dalbit_ipairs = ipairs
 end
 
 local proxyMetatables = {}
-local dal_getmetatable
-if _G.DAL_emulate_frozen_table and _G.DAL_emulate_newproxy then
-	dal_getmetatable = function(value: any): any
-		if _G.DAL_emulate_type_error then
+local dalbit_getmetatable
+if _G.DALBIT_emulate_frozen_table and _G.DALBIT_emulate_newproxy then
+	dalbit_getmetatable = function(value: any): any
+		if _G.DALBIT_emulate_type_error then
 			if value == nil then
 				error("missing argument #1")
 			end
@@ -89,9 +89,9 @@ if _G.DAL_emulate_frozen_table and _G.DAL_emulate_newproxy then
 		end
 		return mt
 	end
-elseif _G.DAL_emulate_frozen_table then
-	dal_getmetatable = function(value: any): any
-		if _G.DAL_emulate_type_error then
+elseif _G.DALBIT_emulate_frozen_table then
+	dalbit_getmetatable = function(value: any): any
+		if _G.DALBIT_emulate_type_error then
 			if value == nil then
 				error("missing argument #1")
 			end
@@ -103,9 +103,9 @@ elseif _G.DAL_emulate_frozen_table then
 		end
 		return getmetatable(value)
 	end
-elseif _G.DAL_emulate_newproxy then
-	dal_getmetatable = function(value: any): any
-		if _G.DAL_emulate_type_error then
+elseif _G.DALBIT_emulate_newproxy then
+	dalbit_getmetatable = function(value: any): any
+		if _G.DALBIT_emulate_type_error then
 			if value == nil then
 				error("missing argument #1")
 			end
@@ -118,8 +118,8 @@ elseif _G.DAL_emulate_newproxy then
 		return getmetatable(value)
 	end
 else
-	dal_getmetatable = function(value: any): any
-		if _G.DAL_emulate_type_error then
+	dalbit_getmetatable = function(value: any): any
+		if _G.DALBIT_emulate_type_error then
 			if value == nil then
 				error("missing argument #1")
 			end
@@ -134,8 +134,8 @@ else
 end
 
 -- a SPECIAL global function for __iter
-local function __DAL_getmetatable_iter(value)
-	if _G.DAL_emulate_type_error then
+local function __DALBIT_getmetatable_iter(value)
+	if _G.DALBIT_emulate_type_error then
 		if value == nil then
 			error("missing argument #1")
 		end
@@ -147,11 +147,11 @@ local function __DAL_getmetatable_iter(value)
 			__iter = iterMethod,
 		}
 	end
-	return dal_getmetatable(value)
+	return dalbit_getmetatable(value)
 end
 
-local function dal_setmetatable(tbl: {}, mt: { [any]: any } | nil)
-	if _G.DAL_runtime_type_checking then
+local function dalbit_setmetatable(tbl: {}, mt: { [any]: any } | nil)
+	if _G.DALBIT_runtime_type_checking then
 		local funcName = "setmetatable"
 		expectTable(tbl, "table", 1, funcName)
 		if mt ~= nil and typeof(mt) ~= "table" then
@@ -267,10 +267,10 @@ end
 
 nativeTypes[userdata] = "userdata"
 
-local dal_newproxy
-if _G.DAL_emulate_newproxy then
-	dal_newproxy = function(mt: boolean?)
-		if _G.DAL_emulate_type_error then
+local dalbit_newproxy
+if _G.DALBIT_emulate_newproxy then
+	dalbit_newproxy = function(mt: boolean?)
+		if _G.DALBIT_emulate_type_error then
 			if mt ~= nil and type(mt) ~= "boolean" then
 				error(`invalid argument #1 to 'newproxy' (nil or boolean expected, got {typeof(mt)})`)
 			end
@@ -300,8 +300,8 @@ if _G.DAL_emulate_newproxy then
 		return newud
 	end
 else
-	dal_newproxy = function(mt: boolean?)
-		if _G.DAL_emulate_type_error then
+	dalbit_newproxy = function(mt: boolean?)
+		if _G.DALBIT_emulate_type_error then
 			if mt ~= nil and type(mt) ~= "boolean" then
 				error(`invalid argument #1 to 'newproxy' (nil or boolean expected, got {typeof(mt)})`)
 			end
@@ -318,16 +318,16 @@ else
 	end
 end
 
-local dal_gcinfo = gcinfo
-if not dal_gcinfo then
-	dal_gcinfo = function(): number
+local dalbit_gcinfo = gcinfo
+if not dalbit_gcinfo then
+	dalbit_gcinfo = function(): number
 		return collectgarbage("count")
 	end
 end
 
-local dal_setfenv = setfenv
-if not dal_setfenv then
-	dal_setfenv = function<T..., R...>(fnOrIndex: (T...) -> R... | number, env): ((T...) -> R...)?
+local dalbit_setfenv = setfenv
+if not dalbit_setfenv then
+	dalbit_setfenv = function<T..., R...>(fnOrIndex: (T...) -> R... | number, env): ((T...) -> R...)?
 		fnOrIndex = fnOrIndex or 1
 		if isNumber(fnOrIndex) then
 			local info = (debug :: any).getinfo(fnOrIndex) :: {
@@ -358,9 +358,9 @@ if not dal_setfenv then
 	end
 end
 
-local dal_getfenv = getfenv
-if not dal_getfenv then
-	dal_getfenv = function(fnOrIndex: (() -> () | number)?)
+local dalbit_getfenv = getfenv
+if not dalbit_getfenv then
+	dalbit_getfenv = function(fnOrIndex: (() -> () | number)?)
 		fnOrIndex = fnOrIndex or 1
 		if isNumber(fnOrIndex) then
 			local info = (debug :: any).getinfo(fnOrIndex) :: {
@@ -388,10 +388,10 @@ if not dal_getfenv then
 	end
 end
 
-local dal_loadstring = loadstring
-if not dal_loadstring then
-	dal_loadstring = function<A...>(contents: string, chunkname: string?): (((A...) -> any)?, string?)
-		if _G.DAL_runtime_type_checking then
+local dalbit_loadstring = loadstring
+if not dalbit_loadstring then
+	dalbit_loadstring = function<A...>(contents: string, chunkname: string?): (((A...) -> any)?, string?)
+		if _G.DALBIT_runtime_type_checking then
 			local funcName = "loadstring"
 			expectString(contents, 1, funcName)
 			if chunkname ~= nil and not isString(chunkname) then
@@ -408,23 +408,23 @@ return {
 	-- globals
 	type = type :: typeof(type),
 	typeof = typeof :: typeof(typeof),
-	rawget = dal_rawget :: typeof(rawget),
-	rawset = dal_rawset :: typeof(rawset),
-	next = dal_next :: typeof(next),
+	rawget = dalbit_rawget :: typeof(rawget),
+	rawset = dalbit_rawset :: typeof(rawset),
+	next = dalbit_next :: typeof(next),
 	unpack = (unpack or table.unpack) :: typeof(unpack),
 	pairs = function(tbl)
-		return dal_next, tbl, nil
+		return dalbit_next, tbl, nil
 	end :: typeof(pairs),
-	ipairs = dal_ipairs :: typeof(ipairs),
-	getmetatable = dal_getmetatable :: typeof(getmetatable),
-	__DAL_getmetatable_iter = __DAL_getmetatable_iter :: typeof(getmetatable),
-	setmetatable = dal_setmetatable :: typeof(setmetatable),
-	newproxy = dal_newproxy :: typeof(newproxy),
-	gcinfo = dal_gcinfo :: typeof(gcinfo),
-	setfenv = dal_setfenv :: typeof(setfenv),
-	getfenv = dal_getfenv :: typeof(getfenv),
+	ipairs = dalbit_ipairs :: typeof(ipairs),
+	getmetatable = dalbit_getmetatable :: typeof(getmetatable),
+	__DALBIT_getmetatable_iter = __DALBIT_getmetatable_iter :: typeof(getmetatable),
+	setmetatable = dalbit_setmetatable :: typeof(setmetatable),
+	newproxy = dalbit_newproxy :: typeof(newproxy),
+	gcinfo = dalbit_gcinfo :: typeof(gcinfo),
+	setfenv = dalbit_setfenv :: typeof(setfenv),
+	getfenv = dalbit_getfenv :: typeof(getfenv),
 	_VERSION = "Luau",
-	loadstring = dal_loadstring :: typeof(loadstring),
+	loadstring = dalbit_loadstring :: typeof(loadstring),
 
 	-- libraries
 	bit32 = require("./bit32"),
