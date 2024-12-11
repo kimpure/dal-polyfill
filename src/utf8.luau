@@ -253,6 +253,7 @@ local function utf8Codes(str: string)
 		return nil :: any, nil :: any
     end, str, 0
 end
+
 --// utf8 Codes test
 -- for pos, code in utf8.codes('안녕하세요') do
 --     print(pos, code)
