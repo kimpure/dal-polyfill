@@ -4,10 +4,10 @@ local expectNumber = require("./expectNumber")
 local expect = require("./expect")
 local frozenTables = require("./frozenTables")
 local privateKey = require("./privateKey")
-local dal_next = require("./next")
+local dalbit_next = require("./next")
 
 local function clear(t: {})
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "clear")
 	end
 
@@ -17,10 +17,10 @@ local function clear(t: {})
 end
 
 local clone: any
-if _G.DAL_allow_debug_library_usage and (debug :: any).getmetatable then
+if _G.DALBIT_allow_debug_library_usage and (debug :: any).getmetatable then
 	local getmt = (debug :: any).getmetatable
 	clone = function(t: {})
-		if _G.DAL_runtime_type_checking then
+		if _G.DALBIT_runtime_type_checking then
 			expectTable(t, "table", 1, "clone")
 		end
 
@@ -38,7 +38,7 @@ if _G.DAL_allow_debug_library_usage and (debug :: any).getmetatable then
 	end
 else
 	clone = function(t)
-		if _G.DAL_runtime_type_checking then
+		if _G.DALBIT_runtime_type_checking then
 			expectTable(t, "table", 1, "clone")
 		end
 
@@ -56,7 +56,7 @@ else
 end
 
 local function create<V>(count: number, value: V?): { V }
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(count, 1, "create")
 	end
 
@@ -70,10 +70,10 @@ local function create<V>(count: number, value: V?): { V }
 end
 
 local function find(t: {}, value: any): number?
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "find")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		if value == nil then
 			error("missing argument #2")
 		end
@@ -90,23 +90,23 @@ local function find(t: {}, value: any): number?
 end
 
 local function foreach<K, V>(t: { [K]: V }, fn: (K, V) -> ()): ()
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "foreach")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expect(fn, "function", 2, "foreach")
 	end
 
-	for k, v in dal_next, t do
+	for k, v in dalbit_next, t do
 		fn(k, v)
 	end
 end
 
 local function foreachi<V>(t: { V }, fn: (number, V) -> ()): ()
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "foreachi")
 	end
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expect(fn, "function", 2, "foreachi")
 	end
 
@@ -134,11 +134,11 @@ function FrozenTable.__len(self): number
 end
 
 local function freeze(t: typeof(setmetatable({} :: {}, {} :: {})))
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "freeze")
 	end
 
-	if _G.DAL_emulate_frozen_table then
+	if _G.DALBIT_emulate_frozen_table then
 		local mt = getmetatable(t)
 		local freezeMt
 		if mt then
@@ -170,7 +170,7 @@ local function freeze(t: typeof(setmetatable({} :: {}, {} :: {})))
 end
 
 local function isfrozen(t: {}): boolean
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "isfrozen")
 	end
 
@@ -181,7 +181,7 @@ local unpack = table.unpack
 local pack = table.pack
 
 local function getn(t: {}): number
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "getn")
 	end
 
@@ -189,7 +189,7 @@ local function getn(t: {}): number
 end
 
 local function maxn(t: {}): number
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "maxn")
 	end
 

@@ -6,7 +6,7 @@ local gmatch = string.gmatch
 local insert = table.insert
 
 local function split(inputstr: string, sep: string): { string }
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "split"
 		expectString(inputstr, 1, funcName)
 		if sep ~= nil and not isString(sep) then
@@ -29,9 +29,9 @@ pcall(function()
 	stringMt.split = split
 end)
 
-local dal_string
-if _G.DAL_test then
-	dal_string = {
+local dalbit_string
+if _G.DALBIT_test then
+	dalbit_string = {
 		split = split,
 		byte = string.byte,
 		char = string.char,
@@ -51,7 +51,7 @@ if _G.DAL_test then
 		upper = string.upper,
 	} :: typeof(string)
 else
-	dal_string = {
+	dalbit_string = {
 		split = string.split or split,
 		byte = string.byte,
 		char = string.char,
@@ -72,4 +72,4 @@ else
 	} :: typeof(string)
 end
 
-return dal_string
+return dalbit_string

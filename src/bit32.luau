@@ -10,7 +10,7 @@ local lshift
 local bnot
 local bor
 local bxor
-if bit32 and _G.DAL_test == false then
+if bit32 and _G.DALBIT_test == false then
 	band = bit32.band
 	rshift = bit32.rshift
 	lshift = bit32.lshift
@@ -23,7 +23,7 @@ else
 		local args = {...}
 		local a = args[1]
 
-		if _G.DAL_emulate_type_error then
+		if _G.DALBIT_emulate_type_error then
 			expectNumber(a, 1, "band")
 		end
 
@@ -32,7 +32,7 @@ else
 			a %= 0x100000000
 			b %= 0x100000000
 
-			if _G.DAL_emulate_type_error then
+			if _G.DALBIT_emulate_type_error then
 				expectNumber(b, i, "band")
 			end
 
@@ -54,7 +54,7 @@ else
 	end
 
 	rshift = function(a: number, b: number): number
-		if _G.DAL_emulate_type_error then
+		if _G.DALBIT_emulate_type_error then
 			local funcName = "rshift"
 			expectNumber(a, 1, funcName)
 			expectNumber(b, 2, funcName)
@@ -70,7 +70,7 @@ else
 	end
 
 	lshift = function(a: number, b: number): number
-		if _G.DAL_emulate_type_error then
+		if _G.DALBIT_emulate_type_error then
 			local funcName = "lshift"
 			expectNumber(a, 1, funcName)
 			expectNumber(b, 2, funcName)
@@ -83,7 +83,7 @@ else
 	end
 
 	bnot = function(a: number): number
-		if _G.DAL_emulate_type_error then
+		if _G.DALBIT_emulate_type_error then
 			expectNumber(a, 1, "bnot")
 		end
 
@@ -95,7 +95,7 @@ else
 		local args = {...}
 		local a = args[1]
 
-		if _G.DAL_emulate_type_error then
+		if _G.DALBIT_emulate_type_error then
 			expectNumber(a, 1, "bor")
 		end
 
@@ -104,7 +104,7 @@ else
 			a = floor(a % 0x100000000)
 			b = floor(b % 0x100000000)
 
-			if _G.DAL_emulate_type_error then
+			if _G.DALBIT_emulate_type_error then
 				expectNumber(b, i, "bor")
 			end
 
@@ -124,7 +124,7 @@ else
 		local args = {...}
 		local a = args[1]
 
-		if _G.DAL_emulate_type_error then
+		if _G.DALBIT_emulate_type_error then
 			expectNumber(a, 1, "bor")
 		end
 
@@ -133,7 +133,7 @@ else
 			a = floor(a % 0x100000000)
 			b = floor(b % 0x100000000)
 
-			if _G.DAL_emulate_type_error then
+			if _G.DALBIT_emulate_type_error then
 				expectNumber(b, i, "bor")
 			end
 
@@ -158,7 +158,7 @@ else
 end
 
 local function arshift(x: number, disp: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "arshift"
 		expectNumber(x, 1, funcName)
 		expectNumber(disp, 2, funcName)
@@ -180,7 +180,7 @@ local function btest(x: number, y: number): boolean -- can be converted directly
 end
 
 local function extract(n: number, field: number, width: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "extract"
 		expectNumber(n, 1, funcName)
 		expectNumber(field, 2, funcName)
@@ -192,7 +192,7 @@ local function extract(n: number, field: number, width: number): number
 end
 
 local function rrotate(x: number, disp: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "rrotate"
 		expectNumber(x, 1, funcName)
 		expectNumber(disp, 2, funcName)
@@ -204,7 +204,7 @@ local function rrotate(x: number, disp: number): number
 end
 
 local function lrotate(x: number, disp: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "rrotate"
 		expectNumber(x, 1, funcName)
 		expectNumber(disp, 2, funcName)
@@ -214,7 +214,7 @@ local function lrotate(x: number, disp: number): number
 end
 
 local function replace(n: number, v: number, field: number, width: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "replace"
 		expectNumber(n, 1, funcName)
 		expectNumber(v, 2, funcName)
@@ -230,7 +230,7 @@ local function replace(n: number, v: number, field: number, width: number): numb
 end
 
 local function countrz(x: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "countrz")
 	end
 
@@ -248,7 +248,7 @@ local function countrz(x: number): number
 end
 
 local function countlz(x: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "countlz")
 	end
 
@@ -260,7 +260,7 @@ local function countlz(x: number): number
 end
 
 local function byteswap(n: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(n, 1, "byteswap")
 	end
 

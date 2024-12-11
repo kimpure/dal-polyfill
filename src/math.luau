@@ -11,7 +11,7 @@ local log2 = log(2)
 local math_atan = math.atan
 
 local function atan(a: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(a, 1, "atan")
 	end
 
@@ -19,7 +19,7 @@ local function atan(a: number): number
 end
 
 local function atan2(a: number, b: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "atan2"
 		expectNumber(a, 1, funcName)
 		expectNumber(b, 2, funcName)
@@ -29,7 +29,7 @@ local function atan2(a: number, b: number): number
 end
 
 local function clamp(v: number, min: number, max: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "clamp"
 		expectNumber(v, 1, funcName)
 		expectNumber(min, 2, funcName)
@@ -44,7 +44,7 @@ local function clamp(v: number, min: number, max: number): number
 end
 
 local function cosh(x: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "cosh")
 	end
 
@@ -60,7 +60,7 @@ local function cosh(x: number): number
 end
 
 local function sinh(x: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "sinh")
 	end
 
@@ -90,7 +90,7 @@ local function sinh(x: number): number
 end
 
 local function tanh(x: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "tanh")
 	end
 
@@ -120,7 +120,7 @@ local function tanh(x: number): number
 end
 
 local function pow(a: number, b: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "pow"
 		expectNumber(a, 1, funcName)
 		expectNumber(b, 2, funcName)
@@ -130,7 +130,7 @@ local function pow(a: number, b: number): number
 end
 
 local function frexp(x: number): (number, number)
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "frexp")
 	end
 
@@ -150,7 +150,7 @@ local function frexp(x: number): (number, number)
 end
 
 local function ldexp(x: number, e: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		local funcName = "ldexp"
 		expectNumber(x, 1, funcName)
 		expectNumber(e, 2, funcName)
@@ -160,7 +160,7 @@ local function ldexp(x: number, e: number): number
 end
 
 local function log10(x: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(x, 1, "log10")
 	end
 
@@ -168,7 +168,7 @@ local function log10(x: number): number
 end
 
 local function round(n: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(n, 1, "round")
 	end
 
@@ -176,7 +176,7 @@ local function round(n: number): number
 end
 
 local function sign(n: number): number
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		expectNumber(n, 1, "sign")
 	end
 
@@ -189,9 +189,9 @@ local function sign(n: number): number
 	end
 end
 
-local dal_math
-if _G.DAL_test then
-	dal_math = {
+local dalbit_math
+if _G.DALBIT_test then
+	dalbit_math = {
 		atan = atan,
 		atan2 = math.atan2 or atan2,
 		clamp = clamp,
@@ -228,7 +228,7 @@ if _G.DAL_test then
 		tan = math.tan,
 	} :: typeof(math)
 else
-	dal_math = {
+	dalbit_math = {
 		atan = math.atan or atan,
 		atan2 = math.atan2 or atan2,
 		clamp = math.clamp or clamp,
@@ -266,4 +266,4 @@ else
 	} :: typeof(math)
 end
 
-return dal_math
+return dalbit_math

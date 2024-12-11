@@ -145,7 +145,7 @@ local function utf8Offset(s: string, n: number, i: number?): number?
 	if n < 0 or n >= #s then
 		return nil
 	end
-	
+
 	i = i or 1 :: number
 	local len = #s
 
@@ -191,7 +191,7 @@ local function utf8Codepoint(str: string, i: number?, j: number?): ...number
 	local currentChar = 1
 
 	while currentPos <= #str do
-		local codePoint, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, currentPos), 1, -1) })
+		local codePoint, length = uniCodeToBytes(bytesToUniCode({ byte(sub(str, currentPos), 1, -1) }))
 
 		if currentChar >= i and currentChar <= j then
 			result[#result + 1] = bytesToCodePoint(codePoint)
@@ -216,7 +216,7 @@ local function utf8Len(str: string, i: number?, j: number?): ...number
 	local currentChar = 1
 
 	while currentPos <= #str do
-		local _, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, currentPos), 1, -1) })
+		local _, length = uniCodeToBytes(bytesToUniCode({ byte(sub(str, currentPos), 1, -1) }))
 
 		if currentChar >= i and currentChar <= j then
 			result += 1
@@ -234,24 +234,26 @@ end
 -- print(utf8Len('한글'))
 
 local function utf8Codes(str: string)
-    return function(str: string, index: number): (number, number)
+	return function(str: string, index: number): (number, number)
 		local firestLoop = index == 0
 		index = firestLoop and 1 or index
 		if index <= #str then
-			local bytes, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, index), 1, -1) })
+			local bytes, length = uniCodeToBytes(bytesToUniCode({ byte(sub(str, index), 1, -1) }))
 
 			if firestLoop then
 				return index, bytesToCodePoint(bytes)
 			end
 
 			if index + length <= #str then
-				local after, _ = uniCodeToBytes(bytesToUniCode{ byte(sub(str, index + length), 1, -1) })
+				local after, _ = uniCodeToBytes(bytesToUniCode({ byte(sub(str, index + length), 1, -1) }))
 				return index + length, bytesToCodePoint(after)
 			end
 			return nil :: any, nil :: any
-        end
+		end
 		return nil :: any, nil :: any
-    end, str, 0
+	end,
+		str,
+		0
 end
 
 --// utf8 Codes test

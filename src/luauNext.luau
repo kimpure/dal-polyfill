@@ -156,7 +156,7 @@ local nodesOf: {
 } = {}
 
 return function<K, V>(t: {[K]: V}, key: K?): (K?, V)
-	if _G.DAL_runtime_type_checking then
+	if _G.DALBIT_runtime_type_checking then
 		expectTable(t, "table", 1, "next")
 	end
 
@@ -187,7 +187,7 @@ return function<K, V>(t: {[K]: V}, key: K?): (K?, V)
 	sizenode = sizenode < 1 and 1 or lshift(1, lsize)
 	local keyType = type(key)
 
-	if _G.DAL_emulate_type_error then
+	if _G.DALBIT_emulate_type_error then
 		if sizearray > MAXSIZE then
 			error("table overflow")
 		end
