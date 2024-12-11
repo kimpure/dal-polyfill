@@ -38,22 +38,18 @@ local function bytesToCodePoint(bytes: { [number]: number }): number
 end
 
 local function bytesToUniCode(bytes: { [number]: number }): number
-	--// 1byte char
 	if bytes[1] < 0x80 then
 		return bytes[1]
 	end
 
-	--// 2byte char
 	if band(bytes[1], 0xE0) == 0xC0 then
 		return bor(lshift(band(bytes[1], 0x1F), 6), band(bytes[2], 0x3F))
 	end
 
-	--// 3byte char
 	if band(bytes[1], 0xF0) == 0xE0 then
 		return bor(lshift(band(bytes[1], 0x0F), 12), lshift(band(bytes[2], 0x3F), 6), band(bytes[3], 0x3F))
 	end
 
-	--// 4byte char
 	if band(bytes[1], 0xF8) == 0xF0 then
 		return bor(
 			lshift(band(bytes[1], 0x07), 18),
@@ -67,12 +63,10 @@ local function bytesToUniCode(bytes: { [number]: number }): number
 end
 
 local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
-	--// 1byte char
 	if codePoint < 0x80 then
 		return { codePoint }, 1
 	end
 
-	--// 2byte char
 	if codePoint < 0x800 then
 		return {
 			bor(0xC0, rshift(codePoint, 6)),
@@ -80,7 +74,6 @@ local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
 		}, 2
 	end
 
-	--// 3byte char
 	if codePoint < 0x10000 then
 		return {
 			bor(0xE0, rshift(codePoint, 12)),
@@ -90,7 +83,6 @@ local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
 			3
 	end
 
-	--// 4byte char
 	if codePoint < 0x110000 then
 		return {
 			bor(0xF0, rshift(codePoint, 18)),
@@ -104,31 +96,21 @@ local function uniCodeToBytes(codePoint: number): ({ [number]: number }, number)
 	return error("utf8 max byte is 4")
 end
 
--- local function utf8Encode(char: string): { [number]: number }
--- 	local codePoint = bytesToUniCode({ byte(char, 1, -1) })
-
--- 	return uniCodeToBytes(codePoint)
--- end
-
 local function utf8Decode(bytes: { [number]: number }): (string, number)
 	local code = bytesToCodePoint(bytes)
 
-	--// 1byte char
 	if bytes[1] < 0x80 then
 		return char(code), 1
 	end
 
-	--// 2byte char
 	if band(bytes[1], 0xE0) == 0xC0 then
 		return char(0xC0 + floor(code / 0x40), 0x80 + (code % 0x40)), 2
 	end
 
-	--// 3byte char
 	if band(bytes[1], 0xF0) == 0xE0 then
 		return char(0xE0 + floor(code / 0x1000), 0x80 + (floor(code / 0x40) % 0x40), 0x80 + (code % 0x40)), 3
 	end
 
-	--// 4byte char
 	if band(bytes[1], 0xF8) == 0xF0 then
 		return char(
 			0xF0 + floor(code / 0x40000),
@@ -147,7 +129,7 @@ end
 -- print(encodeValue)
 -- print(utf8Decode(encodeValue))
 
-local function utf8Char(...: number)
+local function utf8Char(...: number): string
 	local result = ""
 	for _, v in { ... } do
 		result ..= utf8Decode(uniCodeToBytes(v :: number) :: any)
@@ -160,6 +142,10 @@ end
 -- print(utf8Char(65, 66, 67))
 
 local function utf8Offset(s: string, n: number, i: number?): number?
+	if n < 0 or n >= #s then
+		return nil
+	end
+	
 	i = i or 1 :: number
 	local len = #s
 
@@ -194,8 +180,8 @@ local function utf8Offset(s: string, n: number, i: number?): number?
 end
 
 --// utf8 offset test
--- print(utf8.offset('한', 0, 1))
--- print(utf8Offset('한', 0, 1))
+-- print(utf8.offset('한', 1, 5))
+-- print(utf8Offset('한', 1, 5))
 
 local function utf8Codepoint(str: string, i: number?, j: number?): ...number
 	local i = i or 1
@@ -205,7 +191,7 @@ local function utf8Codepoint(str: string, i: number?, j: number?): ...number
 	local currentChar = 1
 
 	while currentPos <= #str do
-		local codePoint, length = uniCodeToBytes(bytesToUniCode({ string.sub(str, currentPos):byte(1, -1) }))
+		local codePoint, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, currentPos), 1, -1) })
 
 		if currentChar >= i and currentChar <= j then
 			result[#result + 1] = bytesToCodePoint(codePoint)
@@ -230,7 +216,7 @@ local function utf8Len(str: string, i: number?, j: number?): ...number
 	local currentChar = 1
 
 	while currentPos <= #str do
-		local _, length = uniCodeToBytes(bytesToUniCode({ sub(str, currentPos):byte(1, -1) }))
+		local _, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, currentPos), 1, -1) })
 
 		if currentChar >= i and currentChar <= j then
 			result += 1
@@ -247,18 +233,26 @@ end
 -- print(utf8.len('한글'))
 -- print(utf8Len('한글'))
 
-local function utf8Codes(str: string): () -> (number, number)
-	local currentPos = 1
+local function utf8Codes(str: string)
+    return function(str: string, index: number): (number, number)
+		local firestLoop = index == 0
+		index = firestLoop and 1 or index
+		if index <= #str then
+			local bytes, length = uniCodeToBytes(bytesToUniCode{ byte(sub(str, index), 1, -1) })
 
-	return function()
-		if currentPos <= #str then
-			local codePoint, length = uniCodeToBytes(bytesToUniCode({ string.sub(str, currentPos):byte(1, -1) }))
-			currentPos = currentPos + length
-			return currentPos - 1, bytesToCodePoint(codePoint)
-		end
-	end
+			if firestLoop then
+				return index, bytesToCodePoint(bytes)
+			end
+
+			if index + length <= #str then
+				local after, _ = uniCodeToBytes(bytesToUniCode{ byte(sub(str, index + length), 1, -1) })
+				return index + length, bytesToCodePoint(after)
+			end
+			return nil :: any, nil :: any
+        end
+		return nil :: any, nil :: any
+    end, str, 0
 end
-
 --// utf8 Codes test
 -- for pos, code in utf8.codes('안녕하세요') do
 --     print(pos, code)
@@ -268,9 +262,9 @@ end
 -- end
 
 return {
-	offset = utf8Offset :: typeof(utf8.offset),
-	codepoint = utf8Codepoint :: typeof(utf8.codepoint),
-	char = utf8Char :: typeof(utf8.char),
-	len = utf8Len :: typeof(utf8.len),
+	offset = utf8Offset,
+	codepoint = utf8Codepoint,
+	char = utf8Char,
+	len = utf8Len,
 	codes = utf8Codes,
 }
