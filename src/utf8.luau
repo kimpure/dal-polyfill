@@ -16,6 +16,11 @@ local floor = math.floor
 local table = require("./table")
 local unpack = table.unpack
 
+local expectNumber = require('./expectNumber')
+local expectStrings = require('./expectString')
+
+local isNumber = require('./isNumber')
+
 local function bytesToCodePoint(bytes: { [number]: number }): number
 	local codePoint
 
@@ -130,8 +135,16 @@ end
 -- print(utf8Decode(encodeValue))
 
 local function utf8Char(...: number): string
+	local args = { ... }
+	if _G.DALBIT_runtime_type_checking then
+		local funcName = "char"
+		for i, v in args do
+			expectNumber(v, i, funcName)
+		end
+	end
+
 	local result = ""
-	for _, v in { ... } do
+	for _, v in args do
 		result ..= utf8Decode(uniCodeToBytes(v :: number) :: any)
 	end
 	return result
@@ -142,6 +155,15 @@ end
 -- print(utf8Char(65, 66, 67))
 
 local function utf8Offset(s: string, n: number, i: number?): number?
+	if _G.DALBIT_runtime_type_checking then
+		local funcName = "offset"
+		expectStrings(s, 1, funcName)
+		expectNumber(n, 2, funcName)
+		if i ~= nil and not isNumber(i) then
+			error(`invalid argument #3 to '{funcName}' (number expected, got {typeof(i)})`)
+		end
+	end
+
 	if n < 0 or n >= #s then
 		return nil
 	end
@@ -184,6 +206,17 @@ end
 -- print(utf8Offset('한', 1, 5))
 
 local function utf8Codepoint(str: string, i: number?, j: number?): ...number
+	if _G.DALBIT_runtime_type_checking then
+		local funcName = "codepoint"
+		expectStrings(str, 1, funcName)
+		if i ~= nil and not isNumber(i) then
+			error(`invalid argument #2 to '{funcName}' (number expected, got {typeof(i)})`)
+		end
+		if j ~= nil and not isNumber(j) then
+			error(`invalid argument #3 to '{funcName}' (number expected, got {typeof(j)})`)
+		end
+	end
+
 	local i = i or 1
 	local j = j or i
 	local result = {}
@@ -209,6 +242,16 @@ end
 -- print(utf8Codepoint('뷁뚥', 1, 4))
 
 local function utf8Len(str: string, i: number?, j: number?): ...number
+	if _G.DALBIT_runtime_type_checking then
+		local funcName = "len"
+		expectStrings(str, 1, funcName)
+		if i ~= nil and not isNumber(i) then
+			error(`invalid argument #2 to '{funcName}' (number expected, got {typeof(i)})`)
+		end
+		if j ~= nil and not isNumber(j) then
+			error(`invalid argument #3 to '{funcName}' (number expected, got {typeof(j)})`)
+		end
+	end
 	local i = i or 1
 	local j = j or i
 	local result = 1
@@ -234,6 +277,9 @@ end
 -- print(utf8Len('한글'))
 
 local function utf8Codes(str: string)
+	if _G.DALBIT_runtime_type_checking then
+		expectStrings(str, 1, "codes")
+	end
 	return function(str: string, index: number): (number, number)
 		local firestLoop = index == 0
 		index = firestLoop and 1 or index
