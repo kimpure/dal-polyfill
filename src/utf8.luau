@@ -16,6 +16,8 @@ local floor = math.floor
 local table = require("./table")
 local unpack = table.unpack
 
+local typeof = require('./typeof')
+
 local expectNumber = require('./expectNumber')
 local expectStrings = require('./expectString')
 

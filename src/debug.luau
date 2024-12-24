@@ -1,6 +1,9 @@
+local type = require('./type')
+
 local table = require("./table")
 local insert = table.insert
 local unpack = table.unpack
+
 local string = require("./string")
 local gmatch = string.gmatch
 local gsub = string.gsub
