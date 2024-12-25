@@ -1,5 +1,5 @@
 name = "not_for_publish/not_for_publish"
-version = "0.0.1"
+version = "0.0.0"
 target = "lune"
 
 [graph."itsfrank/frktest"."0.0.2 lune"]
